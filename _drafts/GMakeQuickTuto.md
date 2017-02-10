@@ -12,8 +12,7 @@ For all the following examples, we consider that you're using an Unix terminal w
 
 So, consider we have a single C file <tt>hello.c</tt>, like this one:
 
-{% highlight C linenos %}
-
+```C
 # include <stdio.h>
 # include <stdlib.h>
 
@@ -21,8 +20,7 @@ int main() {
   printf("Hello World !\n");
   return 0;
 }
-
-{% endhighlight %}
+```
 
 make knows how to build a program made of a single file out-of-the-box. You just have to ask for the program name and it will look for the corresponding C file:
 
