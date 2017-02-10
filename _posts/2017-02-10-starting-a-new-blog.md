@@ -1,8 +1,6 @@
 ---
 layout: post
 title: "Starting a new Blog"
-date: 2017-02-10
-categories: general
 ---
 
 Hello, this is my new blog. The main purpose is to post small technical
