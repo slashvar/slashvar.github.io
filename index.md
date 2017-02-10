@@ -2,7 +2,7 @@
 title: Marwan's Tutorial Blog
 ---
 
-# Marwan's Tutorial Blog
+## Marwan's Tutorial Blog
 
 This is my new blog, the main purpose is to publish tutorial or quick coding
 stuff.
