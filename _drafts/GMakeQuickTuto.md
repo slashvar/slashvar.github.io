@@ -196,16 +196,19 @@ Tired of manually cleaning your working directory, this is the occasion to build
 
 ```make
 clean:
-	rm -f *.o      # remove object files
-	rm -f main     # remove main program
+	${RM} *.o      # remove object files
+	${RM} main     # remove main program
 ```
+
+Note the use of the variable <tt>RM</tt> which is normally correctly set as the
+command <tt>rm</tt> (with probably the option <tt>-f</tt>.)
 
 <pre>
 shell> ls
 Makefile  main.c  median.c  median.o  sort.h
 main	  main.o  median.h  sort.c    sort.o
 shell> make clean
-rm -f \*.o      # remove object files
+rm -f *.o      # remove object files
 rm main        # remove main program
 shell> ls
 Makefile  main.c  median.c  median.h  sort.c  sort.h
@@ -243,8 +246,8 @@ OBJ= ${SRC:.c=.o}
 main: ${OBJ}
 
 clean:
-	rm -f ${OBJ}   # remove object files
-	rm -f main     # remove main program
+	${RM} ${OBJ}   # remove object files
+	${RM} main     # remove main program
 
 # END
 ```
@@ -304,9 +307,9 @@ main: ${OBJ}
 -include ${DEP}
 
 clean:
-	rm -f ${OBJ}   # remove object files
-	rm -f ${DEP}   # remove dependency files
-	rm -f main     # remove main program
+	${RM} ${OBJ}   # remove object files
+	${RM} ${DEP}   # remove dependency files
+	${RM} main     # remove main program
 
 # END
 ```
@@ -370,9 +373,9 @@ main: ${OBJ}
 .PHONY: clean
 
 clean:
-	rm -f ${OBJ}   # remove object files
-	rm -f ${DEP}   # remove dependency files
-	rm -f main     # remove main program
+	${RM} ${OBJ}   # remove object files
+	${RM} ${DEP}   # remove dependency files
+	${RM} main     # remove main program
 
 -include ${DEP}
 
@@ -413,9 +416,9 @@ main: ${OBJ}
 .PHONY: clean
 
 clean:
-	rm -f ${OBJ}   # remove object files
-	rm -f ${DEP}   # remove dependency files
-	rm -f main     # remove main program
+	${RM} ${OBJ}   # remove object files
+	${RM} ${DEP}   # remove dependency files
+	${RM} main     # remove main program
 
 -include ${DEP}
 
