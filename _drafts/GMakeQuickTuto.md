@@ -131,11 +131,16 @@ In order to correctly use make, you need to understand how to compile code, not 
 
 ## Multiple Files ##
 
-Now, we extend our example so we need to compile several files in order to build our program. For our example, we build a small program with the following files:
+Now, we extend our example so we need to compile several files in order to build our program. Note than in order to use this automatic build with multiple files, you must have one C file with the same name as the target program file.
+
+For our example, we build a small program with the following files:
 
 <pre>
 main.c  median.c  median.h  sort.c  sort.h
 </pre>
+
+Our target is <tt>main</tt> and we have a file called <tt>main.c</tt> as
+expected.
 
 ### Simple build ###
 
