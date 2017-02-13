@@ -476,12 +476,12 @@ use a more advanced tools like the autotools or cmake.
 If you want to know more about available implicit rules, the best place is the
 GNU Make manual:
 
-* (GNU Make Manual)[https://www.gnu.org/software/make/manual/make.html]
-* (GNU Make Manual | Using Implicit Rules)[https://www.gnu.org/software/make/manual/make.html#Implicit-Rules]
+* [GNU Make Manual](https://www.gnu.org/software/make/manual/make.html)
+* [GNU Make Manual | Using Implicit Rules](https://www.gnu.org/software/make/manual/make.html#Implicit-Rules)
 
 If you're using one of the BSD variant of <tt>make</tt>, you'll probably find
 usefull information on the proposed documentations for respective project,
-FreeBSD provides a (tutorial for PMake)[https://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/] (Portable Make, the BSD make) and the manual
+FreeBSD provides a [tutorial for PMake](https://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/) (Portable Make, the BSD make) and the manual
 page for make in OpenBSD is also a good source of information.
 
 
