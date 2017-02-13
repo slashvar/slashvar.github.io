@@ -461,3 +461,27 @@ CFLAGS= -Wall -Wextra -std=c99 -O2 $(pkg-config --cflags sdl)
 LDFLAGS=
 LDLIBS= -lm $(pkg-config --libs sdl)
 ```
+
+## Conclusion ##
+
+As you can see, we have set up a simple <tt>Makefile</tt> that is able to
+compile a project with a simple architecture (all source in the same directory)
+without writing recipes (for compiling.)
+
+When writing a <tt>Makefile</tt> for a C project (or C++) you almost never need
+to write your own recipes. A good <tt>Makefile</tt> is short and contains as few
+rules as possible. If you can't rely on implicit rules, you may probably want to
+use a more advanced tools like the autotools or cmake.
+
+If you want to know more about available implicit rules, the best place is the
+GNU Make manual:
+
+* (GNU Make Manual)[https://www.gnu.org/software/make/manual/make.html]
+* (GNU Make Manual | Using Implicit Rules)[https://www.gnu.org/software/make/manual/make.html#Implicit-Rules]
+
+If you're using one of the BSD variant of <tt>make</tt>, you'll probably find
+usefull information on the proposed documentations for respective project,
+FreeBSD provides a (tutorial for PMake)[https://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/] (Portable Make, the BSD make) and the manual
+page for make in OpenBSD is also a good source of information.
+
+
