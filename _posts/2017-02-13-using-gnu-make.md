@@ -12,7 +12,7 @@ For all the following examples, we consider that you're using an Unix terminal w
 
 So, consider we have a single C file <tt>hello.c</tt>, like this one:
 
-```C
+```c
 # include <stdio.h>
 # include <stdlib.h>
 
