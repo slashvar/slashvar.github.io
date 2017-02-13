@@ -374,13 +374,90 @@ clean:
 # END
 ```
 
-### Using libraries order on command line ##
+### Using libraries ###
 
 Some compilers require that you respect a specific order when providing static
-object (<tt>.o</tt> files and static libraries) and dynamic objects (specify
-with <tt>-l</tt>.)
+object (<tt>.o</tt> files) and dynamic objects (specify with <tt>-l</tt>.)
 
-While it's interesting to understand how to correctly build the linking lines,
+While it's interesting to understand how to correctly build the linker command,
 when compiling your project, you just want it to work. Again, <tt>make</tt>
 knows how to deal with that correctly, the only things you need is to put the
 right information in the right variables.
+
+So consider your code now requires to be linked with the math lib
+(<tt>-lm</tt>), all you have to do is add <tt>-lm</tt> in <tt>LDLIBS</tt>
+variable.
+
+```make
+# Makefile
+
+CPPFLAGS= -MMD
+CC=gcc
+CFLAGS= -Wall -Wextra -std=c99 -O2
+LDFLAGS=
+LDLIBS= -lm
+
+SRC= main.c median.c sort.c
+OBJ= ${SRC:.c=.o}
+DEP= ${SRC:.c=.d}
+
+all: main
+
+main: ${OBJ}
+
+.PHONY: clean
+
+clean:
+	rm -f ${OBJ}   # remove object files
+	rm -f ${DEP}   # remove dependency files
+	rm -f main     # remove main program
+
+-include ${DEP}
+
+# END
+```
+
+When using libs that are not part of the standard distribution of C (so anything
+that is not <tt>-lm</tt>) you should first check if the lib provides flags
+through <tt>pkg-config</tt>.
+
+Let's consider you want to use SDL, first look if it is listed by <tt>pkg-config</tt>:
+
+<pre>
+shell> pkg-config --list-all | grep sdl
+sdl                                     sdl - Simple DirectMedia Layer is ...
+sdl2                                    sdl2 - Simple DirectMedia Layer is ...
+</pre>
+
+Here we can see that we have some configurations for SDL and SDL2, choose your
+own (say SDL). Let see what we can get:
+
+<pre>
+shell> pkg-config --cflags sdl
+-D_GNU_SOURCE=1 -D_REENTRANT -I/usr/include/SDL
+shell> pkg-config --libs  sdl
+-lSDL -lpthread
+</pre>
+
+The first call provides stuff for <tt>CFLAGS</tt> (in fact all theses flags
+should be in <tt>CPPFLAGS</tt> but <tt>pkg-config</tt> doesn't make the
+difference.) The second call provides flags for the linker.
+
+So, we can use this in our <tt>Makefile</tt>, of course don't copy/paste
+the output of the command, but directly call it in the variable definition
+but <tt>pkg-config</tt> doesn't make the difference.) The second call
+provides flags for the linker.
+
+So, we can use this in our <tt>Makefile</tt>, of course don't copy/paste the
+output of the command, but directly call it in the variable definition
+(<tt>make</tt> supports shell syntax in variable definitions.)
+
+```make
+# Makefile
+
+CC=gcc
+CPPFLAGS= -MMD
+CFLAGS= -Wall -Wextra -std=c99 -O2 $(pkg-config --cflags sdl)
+LDFLAGS=
+LDLIBS= -lm $(pkg-config --libs sdl)
+```
