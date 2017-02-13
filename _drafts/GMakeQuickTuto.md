@@ -12,7 +12,7 @@ For all the following examples, we consider that you're using an Unix terminal w
 
 So, consider we have a single C file <tt>hello.c</tt>, like this one:
 
-```C
+```c
 # include <stdio.h>
 # include <stdlib.h>
 
@@ -485,7 +485,7 @@ If you want to know more about available implicit rules, the best place is the
 GNU Make manual:
 
 * [GNU Make Manual](https://www.gnu.org/software/make/manual/make.html)
-* [GNU Make Manual | Using Implicit Rules](https://www.gnu.org/software/make/manual/make.html#Implicit-Rules)
+* [GNU Make Manual - Using Implicit Rules](https://www.gnu.org/software/make/manual/make.html#Implicit-Rules)
 
 If you're using one of the BSD variant of <tt>make</tt>, you'll probably find
 usefull information on the proposed documentations for respective project,
