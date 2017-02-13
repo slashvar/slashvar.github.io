@@ -16,7 +16,8 @@ So, consider we have a single C file <tt>hello.c</tt>, like this one:
 # include <stdio.h>
 # include <stdlib.h>
 
-int main() {
+int main()
+{
   printf("Hello World !\n");
   return 0;
 }
@@ -199,7 +200,7 @@ shell> ls
 Makefile  main.c  median.c  median.o  sort.h
 main	  main.o  median.h  sort.c    sort.o
 shell> make clean
-rm -f *.o      # remove object files
+rm -f \*.o      # remove object files
 rm main        # remove main program
 shell> ls
 Makefile  main.c  median.c  median.h  sort.c  sort.h
@@ -379,4 +380,7 @@ Some compilers require that you respect a specific order when providing static
 object (<tt>.o</tt> files and static libraries) and dynamic objects (specify
 with <tt>-l</tt>.)
 
-In short: the resolution process works from left to right (in most cases) 
+While it's interesting to understand how to correctly build the linking lines,
+when compiling your project, you just want it to work. Again, <tt>make</tt>
+knows how to deal with that correctly, the only things you need is to put the
+right information in the right variables.
