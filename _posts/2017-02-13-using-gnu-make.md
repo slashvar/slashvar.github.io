@@ -41,7 +41,7 @@ This is compiling our code with the minimal set of options (none) and the standa
 
 So, we haven't written any line in a Makefile, and it's already working !
 
-No consider that we want to control a little bit the compiler. We want to set some options like warnings, C standard version and eventually optimization flags. All we need is to set-up a variable named CFLAGS with the various options:
+Now consider that we want to control a little bit the compiler. We want to set some options like warnings, C standard version and eventually optimization flags. All we need is to set-up a variable named CFLAGS with the various options:
 
 <pre>
 shell> rm hello
@@ -75,7 +75,7 @@ cc -Wall -Wextra -std=c99 -O2    hello.c   -o hello
 shell> 
 </pre>
 
-At this point the last things you may want to control is which compiler to run (cc should be OK for most cases, but if your not sure of what cc is referring to, you may want to set the compiler using the CC variables:
+At this point the last things you may want to control is which compiler to run (cc should be OK for most cases, but if you're not sure of what cc is referring to, you may want to set the compiler using the CC variables:
 
 ```make
 # Very basic Makefile
@@ -104,7 +104,7 @@ If you have basic C knowledge, you, you probably know the compilation steps. So 
 * compilation (producing object-code, <tt>cc -c</tt>)
 * linking
 
-<tt>make</tt> understand these steps and got some variables for each of them. When invoked for a single file program, all steps are ran as one single step, otherwise, pre-processing (unless your in some strange cases) is invoked together with the compilation step.
+<tt>make</tt> understand these steps and got some variables for each of them. When invoked for a single file program, all steps are ran as one single step, otherwise, pre-processing (unless you're in some strange cases) is invoked together with the compilation step.
 
 You can control a various set of options passed at each steps, and we'll see that correctly separating theses options is important in order to get the compilation done.
 
@@ -450,11 +450,6 @@ shell> pkg-config --libs  sdl
 The first call provides stuff for <tt>CFLAGS</tt> (in fact all theses flags
 should be in <tt>CPPFLAGS</tt> but <tt>pkg-config</tt> doesn't make the
 difference.) The second call provides flags for the linker.
-
-So, we can use this in our <tt>Makefile</tt>, of course don't copy/paste
-the output of the command, but directly call it in the variable definition
-but <tt>pkg-config</tt> doesn't make the difference.) The second call
-provides flags for the linker.
 
 So, we can use this in our <tt>Makefile</tt>, of course don't copy/paste the
 output of the command, but directly call it in the variable definition
