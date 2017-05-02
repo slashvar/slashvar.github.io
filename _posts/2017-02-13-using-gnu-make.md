@@ -129,6 +129,12 @@ LDLIBS=
 
 In order to correctly use make, you need to understand how to compile code, not how make does. So, if you're not familiar with the C compilation schema, we strongly encourage you to open a good C programming book.
 
+In order to see and understand how make is invoking the compiler for the different steps, you can ask him to dump all its rules:
+
+<pre>
+shell> make -p -f /dev/null > Makefile.defaults
+</pre>
+
 ## Multiple Files ##
 
 Now, we extend our example so we need to compile several files in order to build our program. Note than in order to use this automatic build with multiple files, you must have one C file with the same name as the target program file.
