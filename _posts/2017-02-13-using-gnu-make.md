@@ -324,7 +324,7 @@ New stuff:
 
 * New flags in <tt>CPPFLAGS</tt>
 * <tt>DEP</tt> variable listing dependency files produced by the compiler
-* <tt>-include</tt> directive telling make to include dependency files
+* <tt>-include</tt> directive telling make to include dependency files (the dash `-` is here to ignore the include directive if the file does not exists yet)
 * <tt>clean</tt> rule extended to remove these new files
 
 Note that we add the <tt>-include</tt> directive **after** the rule for main. The default target of make is the first rule of the file, so if you want to be able to invoke make without specifying a target, it must be the first one.
