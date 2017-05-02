@@ -45,7 +45,7 @@ Now consider that we want to control a little bit the compiler. We want to set s
 
 <pre>
 shell> rm hello
-shell> env CFLAGS=" -Wall -Wextra -std=c99 -O2" make hello
+shell> make CFLAGS=" -Wall -Wextra -std=c99 -O2" hello
 cc  -Wall -Wextra -std=c99 -O2    hello.c   -o hello
 shell>
 </pre>
