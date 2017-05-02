@@ -471,6 +471,81 @@ LDFLAGS =
 LDLIBS = -lm $(pkg-config --libs sdl)
 ```
 
+## How to deal with C++ ##
+
+C++ is a similar but different beast than C. It uses more or less the same linker, with a different set of default options, and a different compiler. The variables used by make are:
+
+* `CXX`: the C++ compiler (defaults to `g++`)
+* `CXXFLAGS`: C++ specific compiler flags
+
+The other variables (`CPPFLAGS`, `LDFLAGS`, `LDLIBS`) are the same. This is especially important if you are mixing C and C++ code in the same binary or package. You should use `CPPFLAGS` for all the macro definition (`-D` & `-U`), and include path (`-I`), in order to share them.
+
+For the linking part, there is an issue though. make rules are working with patterns regognition. The target and the dependancies are read and match against a set of rules in order to determine which recipe should be used. The link step for C and C++ is quite the same:
+
+```make
+binary: file.o file2.o
+```
+
+There is no real way to differenciate the two of them. A solution is to explicitely add the link recipe for the C++ binaries.
+
+```make
+CXXBINARIES = binary1 binary2
+
+binary1: $(BINARY1_OBJS)
+
+binary2: $(BINARY2_OBJS)
+
+$(CXXBINARIES):
+	$(LINK.cc) $^ $(LDLIBS) -o $@
+```
+
+`LINK.cc` variable in the default rules is the linker invocation for a C++ program.
+
+Note that we can declare a recipe for multiple targets at once.
+
+## Compiling a static library ##
+
+Static libraries (`.a` on most unix-like systems) is an archive containing multiple object files. In order to create one, we need to use the `ar` command.
+
+The default rules and patterns for static libraries are a bit strange in make, and can break a parallel invocation of make. In order to avoid that, we need to create a rule for the static libraries generation:
+
+```make
+%.a:
+	$(AR) $(ARFLAGS) $@ $^
+```
+
+With that, we can now do something like this:
+
+```make
+
+libexample.a: example1.o example2.o
+
+%.a:
+	$(AR) $(ARFLAGS) $@ $^
+```
+
+## How to compile and create a dynamic library? ##
+
+Dynamic libraries can be tricky. In order to create one, the code must be compiled as position independant (`-fpic`), and linked with special flags (`-shared`).
+
+As for the static libraries, we need a specific rule for them.
+
+```make
+
+libexample.so: CFLAGS += -fpic
+libexample.so: example1.o example2.o
+
+%.so:
+	$(LINK.c) -shared $^ $(LDLIBS) -o $@
+```
+
+Note the usage of target specific variables in order to tell make to add an
+other flag just for the dynamic library.
+
+Pay attention that if you shared object files between different binaries, this *will* break your build in multiple ways. Rule of thumb is simple. *NEVER* share an object file with a dynamic library. Yep, *NEVER*.
+
+If you need to do something like that, for example produce a static library and a dynamic library with the same code, default rules can't help you. You need to use a more complex build system. Automake is capable of doing that (with the help of libtool), and probably any decent build system.
+
 ## Conclusion ##
 
 As you can see, we have set up a simple <tt>Makefile</tt> that is able to
