@@ -57,7 +57,7 @@ OK, so far, we got a call that is as annoying to type as invoking the compiler d
 ```make
 # Very basic Makefile
 
-CFLAGS= -Wall -Wextra -std=c99 -O2
+CFLAGS = -Wall -Wextra -std=c99 -O2
 
 # marking end of file can avoid problem with
 # make parsing strategy if your editor doesn't
@@ -80,8 +80,8 @@ At this point the last things you may want to control is which compiler to run (
 ```make
 # Very basic Makefile
 
-CC=gcc
-CFLAGS= -Wall -Wextra -std=c99 -O2
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2
 
 # END
 ```
@@ -114,15 +114,15 @@ So, here is a template Makefile with a placeholder for each building variable:
 # template Makefile
 
 # Setting the compiler and the default linker program
-CC=gcc
+CC = gcc
 # options for pre-processor (-I, -include, -D ... )
-CPPFLAGS=
+CPPFLAGS =
 # main compilation options
-CFLAGS= -Wall -Wextra -std=c99
+CFLAGS = -Wall -Wextra -std=c99
 # Linker options (probably always empty)
-LDFLAGS=
+LDFLAGS =
 # libs and path for linker
-LDLIBS=
+LDLIBS =
 
 # END
 ```
@@ -174,11 +174,11 @@ shell>
 Again, we would like to use some compilation options, so we add our variables:
 
 ```make
-CPPFLAGS=
-CC=gcc
-CFLAGS= -Wall -Wextra -std=c99 -O2
-LDFLAGS=
-LDLIBS=
+CPPFLAGS =
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2
+LDFLAGS =
+LDLIBS =
 
 main: main.o median.o sort.o
 
@@ -226,13 +226,13 @@ shell>
 OK, now we want to organize our <tt>Makefile</tt> a little bit more. First, we need list of source files and object files. First the source:
 
 ```make
-SRC= main.c median.c sort.c
+SRC = main.c median.c sort.c
 ```
 
 Now, we can produce the list of object files:
 
 ```make
-OBJ= ${SRC:.c=.o}
+OBJ = ${SRC:.c=.o}
 ```
 
 The variable <tt>OBJ</tt> is defined using the content of the variable <tt>SRC</tt> where the string <tt>.c</tt> is replaced by the string <tt>.o</tt>. Now that we have this list, we can rewrite our <tt>Makefile</tt>:
@@ -240,14 +240,14 @@ The variable <tt>OBJ</tt> is defined using the content of the variable <tt>SRC</
 ```make
 # Makefile
 
-CPPFLAGS=
-CC=gcc
-CFLAGS= -Wall -Wextra -std=c99 -O2
-LDFLAGS=
-LDLIBS=
+CPPFLAGS =
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2
+LDFLAGS =
+LDLIBS =
 
-SRC= main.c median.c sort.c
-OBJ= ${SRC:.c=.o}
+SRC = main.c median.c sort.c
+OBJ = ${SRC:.c=.o}
 
 main: ${OBJ}
 
@@ -295,16 +295,16 @@ GCC (and clang) are able to generate dependency while compiling your code. Since
 ```make
 # Makefile
 
-CPPFLAGS= -MMD
-CC=gcc
-CFLAGS= -Wall -Wextra -std=c99 -O2
-LDFLAGS=
-LDLIBS=
+CPPFLAGS = -MMD
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2
+LDFLAGS =
+LDLIBS =
 
-SRC= main.c median.c sort.c
-OBJ= ${SRC:.c=.o}
+SRC = main.c median.c sort.c
+OBJ = ${SRC:.c=.o}
 # add list of dependency files
-DEP= ${SRC:.c=.d}
+DEP = ${SRC:.c=.d}
 
 
 main: ${OBJ}
@@ -362,15 +362,15 @@ Now, our <tt>Makefile</tt> looks like this:
 ```make
 # Makefile
 
-CPPFLAGS= -MMD
-CC=gcc
-CFLAGS= -Wall -Wextra -std=c99 -O2
-LDFLAGS=
-LDLIBS=
+CPPFLAGS = -MMD
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2
+LDFLAGS =
+LDLIBS =
 
-SRC= main.c median.c sort.c
-OBJ= ${SRC:.c=.o}
-DEP= ${SRC:.c=.d}
+SRC = main.c median.c sort.c
+OBJ = ${SRC:.c=.o}
+DEP = ${SRC:.c=.d}
 
 all: main
 
@@ -405,15 +405,15 @@ variable.
 ```make
 # Makefile
 
-CPPFLAGS= -MMD
-CC=gcc
-CFLAGS= -Wall -Wextra -std=c99 -O2
-LDFLAGS=
-LDLIBS= -lm
+CPPFLAGS = -MMD
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2
+LDFLAGS =
+LDLIBS = -lm
 
-SRC= main.c median.c sort.c
-OBJ= ${SRC:.c=.o}
-DEP= ${SRC:.c=.d}
+SRC = main.c median.c sort.c
+OBJ = ${SRC:.c=.o}
+DEP = ${SRC:.c=.d}
 
 all: main
 
@@ -464,11 +464,11 @@ output of the command, but directly call it in the variable definition
 ```make
 # Makefile
 
-CC=gcc
-CPPFLAGS= -MMD
-CFLAGS= -Wall -Wextra -std=c99 -O2 $(pkg-config --cflags sdl)
-LDFLAGS=
-LDLIBS= -lm $(pkg-config --libs sdl)
+CC = gcc
+CPPFLAGS = -MMD
+CFLAGS = -Wall -Wextra -std=c99 -O2 $(pkg-config --cflags sdl)
+LDFLAGS =
+LDLIBS = -lm $(pkg-config --libs sdl)
 ```
 
 ## Conclusion ##
