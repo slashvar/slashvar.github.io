@@ -318,10 +318,36 @@ extra tests is useless and will probably waste computing time;
 * since the general case already covers those subcases, the corresponding code
 is redundant;
 * tests for corner cases are often more complex than what it looks like at the
-beginning, if the corresponding is specific and works only under the assumptions
-of that corner case, these tests can introduce subtle bugs;
+beginning, if the corresponding code is specific and works only under the
+assumptions of that corner case, these tests can introduce subtle bugs;
 * redundant code and useless tests make the maintainance of the code more
 difficult;
 * and finally, admit it, we're lazy and prefer shorter code.
 
+Issues with redundant code are pretty obvious, dangerous extra tests are a
+little more complex. For example, in students' code for binary tree, there's a
+tendendcy to try to access children or even grand-children of current node, of
+course accessing those nodes requires complex tests and a lot of combinations,
+it's pretty easy to forget some cases.
 
+## Reverse pedagogy ##
+
+On a less technical side, teachers face another difficulties: students not
+seeing the interesting aspect of what you're talking about. This is frustrating,
+you've spent a lot of time building a lecture, finding a way to explain complex
+notions, and students just don't care. And worst, later (during project defense
+for example), they admit that it could have been useful to pay a little more
+attention ...
+
+With other fellow teachers, we've discusted that issue a lot of time. One of the
+idea that finally came out: reverse pedagogy. The idea is to let them try and
+probably fail first, and then explain them how they should have done it.
+
+I must admit that I haven't found a correct process, probably because doing it
+correctly requires an important reconfiguration of the cursus. Anyway, there's
+some ideas that can be apply to a programming cursus.
+
+What is also important, is the nature of notions that may benefit from reverse
+pedagogy. From my own experience, notions related to code organisation,
+modelisation, project management … Those notions are somehow indirect, you can't
+build some simple exercise to demonstrate them.
