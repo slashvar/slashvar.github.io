@@ -4,9 +4,11 @@ title : Reflexions on Teaching Programming
 
 I've been teaching programming and computer science for almost two decades now.
 But it's about to change and before starting a new life, I want to lay down some
-reflexions on this topic.
+reflexions on this topic. This post has been written completely out-of-order,
+thus you may find it a little incoherent, but I wanted to put down ideas before
+I forget them.
 
-## Abstraction or no abstraction ##
+## Where are we going ? ##
 
 The first question you must consider when building a programming lecture is
 about your target audience: what do they know, why do they want to learn
@@ -29,6 +31,28 @@ terminal. But, on the long run, it simplifies the introduction of complex
 concepts.
 
 But, let's start now !
+
+## The beginning ##
+
+One of the most difficult task for me, as a teacher, has always be to teach true
+beginners. It's very frustrating for a teacher, we always expect that simple
+concept be simple to teach, but in my own experience, teaching the basis of
+programming is the most difficult task I've ever have.
+
+One of the thing is that programming is not natural for most human, at least,
+there's a state of mind that our standard education process does not provide. I
+have observed on students, that there's a point where you start looking at the
+problem in a completely different way and after that point most of the
+difficulties you had before simply disappear.
+
+The problem for a teacher is that it's difficult to project yourself on the
+other side of that point, you've cross it a long time ago and now, you can't
+imagine that people don't think in the same way. That's not specific to
+programming, we face that kind of issue everyday.
+
+When teaching to beginners, the most important point is push your students as
+fast as possible on the other side. They'll only start to learn something once
+they cross that point.
 
 ## False simplicity: hidding memory ##
 
@@ -324,11 +348,10 @@ assumptions of that corner case, these tests can introduce subtle bugs;
 difficult;
 * and finally, admit it, we're lazy and prefer shorter code.
 
-Issues with redundant code are pretty obvious, dangerous extra tests are a
-little more complex. For example, in students' code for binary tree, there's a
-tendendcy to try to access children or even grand-children of current node, of
-course accessing those nodes requires complex tests and a lot of combinations,
-it's pretty easy to forget some cases.
+As a teacher, I must admit that I've never found the right way to explain this
+concept. I mean, when I try, they seem to get the point, but fail to apply it in
+practice. The most effective strategy I found was to show them how their code
+can be simplified using some form of code review.
 
 ## Reverse pedagogy ##
 
@@ -351,3 +374,62 @@ What is also important, is the nature of notions that may benefit from reverse
 pedagogy. From my own experience, notions related to code organisation,
 modelisation, project management … Those notions are somehow indirect, you can't
 build some simple exercise to demonstrate them.
+
+## The after-life ##
+
+I wrote most of the previous lines when I was about to leave teaching and now it's
+done. I think it's interesting to add a new point of view on the subject.
+
+What was missing in my lectures ? Probably a lot.
+
+First of all, I now see why *system programming* is probably the most important
+topic for students. I've been teaching it for years, but mostly because I love
+that. I liked the complexity of interraction with that complex beast, I liked
+the concept, I liked interracting with low level stuff, I liked digging in the
+complier behavior ...
+
+But what I've learnt, with just two months as a real software engineer, is that
+all those concepts and problems are the most important part of programming.
+Choosing and implementing an algorithm is most of the time easy, finding the
+correct datastructure also, but build a complete stuff and make it interracts with
+the rest of the world are the real difficulties.
+
+Dealing with existing code base, is also a very important experience. Somehow it
+provides the arguments that I was missing when trying to express some ideas to
+students. For example, why making code simpler and cleaner is almost as
+important as making it works. The project I'm on, evolves quickly in rapid
+envirronment and then have been maintained under the pressure of production. The
+team I'm working with has a very good software engineering approach based on the
+concept of *done is better than perfect*, they push for short term releases
+which is probably the best strategy, at least for SaaS. The only issue is that
+it's difficult to come back to early code, unless it's broken or we need to
+modify it in order to include a new feature.
+
+Thus, anything that get release will stay there for a long time, you can't
+expect to have anytime to rewrite it. While refactoring is indeed a need, it has
+the least priority.
+
+In fact, it's easier to re-engineer your project and modify some design choices
+than to clean, refactor or rewrite existing code. Which emphasises the
+importance of writing simple and clean code from the beginning. It also
+invalidate most software design approach, like complex object oriented beast
+using inheritance and classes, these designs freeze your code more than anything
+else.
+
+On the other hand, if you try to build some piece of code that performs simple
+tasks, one by one, it's easier to replace them, to combine them or to modify
+them to meet new goals and provide new features. That's the essence of the KISS
+principle and that should be the essence of programming.
+
+## Ending words ##
+
+I must close this article and publish it, even if I could put a lot more
+material in it. But, it's better done than perfect. I may come back later on
+pedgagical subjects, I have a lot more ideas in my mind.
+
+To conclude, spending 15 years teaching programming, algorithms and computer
+science stuff have been important for me, it was my job, but more than that,
+it makes me a better programmer, and now I see a future where I can transformed
+what I've learnt into real stuff.
+
+*Let's code !*
