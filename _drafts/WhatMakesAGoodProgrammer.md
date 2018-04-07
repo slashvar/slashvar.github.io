@@ -165,7 +165,7 @@ a way that will be understand by someone else (your reader or the
     compiler/computer). And just like with writting, the technical step is the
 translation of ideas into text (or code). Having idea is another part of the
 job. In fact, for programming, an important part of the job doesn't really need
-ideas, but it needs to written.
+ideas, but it needs to be written.
 
 If you had to learn a foreign language, you've probably come to this point
 where, you have something to say but found it difficult to express in this
