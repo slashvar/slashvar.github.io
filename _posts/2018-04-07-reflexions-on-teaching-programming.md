@@ -200,7 +200,7 @@ Let's have a look at a more complex example. We consider a classic B-tree
 implementation (in C) a function that just check if the keys are correctly
 ordered. For the sake of simplicity, we suppose basic integer keys.
 
-```C
+```c
 #define RANK ...
 struct btree
 {
@@ -242,7 +242,7 @@ little bit deeper, there's performance issues also ...
 
 Here is a better version:
 
-```C
+```c
 int btree_check(struct btree *t, int low, int high)
 {
   if (t) {
@@ -282,7 +282,7 @@ code. We begin, with a classic implementation of lists of integers with external
 allocation (list cells are not allocated by the list operations) and we provide
 two classic operations: a push front and an ordered insert.
 
-```C
+```c
 struct list
 {
   struct list *next;
@@ -312,7 +312,7 @@ void insert(struct list **list, struct list *elm)
 Now, if we just add a sentinel (you know, that fake cell at the beginning of
 the lists), we obtain something a little bit simpler:
 
-```C
+```c
 void push_front(struct list *list, struct list *elm)
 {
   elm->next = list->next;
