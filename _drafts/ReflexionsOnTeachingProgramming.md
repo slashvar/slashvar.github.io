@@ -333,7 +333,7 @@ Of course, my first version can be simplified to a similar point (using
 One of the idea that I've tried to pass to my student, is that when you write
 some code or design an algorithm, you should always begin with the general
 case, and then see if some subcases requires some specific code. This is a
-variation of the classical *keep it simple, stupid*.
+variation of the classical **keep it simple, stupid**.
 
 We have various reasons to follow this strategy:
 
@@ -400,7 +400,7 @@ students. For example, why making code simpler and cleaner is almost as
 important as making it works. The project I'm on, evolves quickly in rapid
 envirronment and then have been maintained under the pressure of production. The
 team I'm working with has a very good software engineering approach based on the
-concept of *done is better than perfect*, they push for short term releases
+concept of **done is better than perfect**, they push for short term releases
 which is probably the best strategy, at least for SaaS. The only issue is that
 it's difficult to come back to early code, unless it's broken or we need to
 modify it in order to include a new feature.
@@ -432,4 +432,4 @@ science stuff have been important for me, it was my job, but more than that,
 it makes me a better programmer, and now I see a future where I can transformed
 what I've learnt into real stuff.
 
-*Let's code !*
+**Let's code !**
