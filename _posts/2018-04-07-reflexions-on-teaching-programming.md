@@ -63,7 +63,7 @@ the comfortable world of pure functions.
 One of the usual issues of students is related to arguments passsing. Let's
 illustrate that with a tiny example, a function that fill an array, first in C:
 
-```C
+```c
 void fill(int t[], size_t len, int val)
 {
   for (size_t i = 0; i < len; i++)
