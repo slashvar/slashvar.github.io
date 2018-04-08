@@ -1,5 +1,5 @@
 ---
-title : Reflexions on Programming Teaching 
+title : Reflexions on the Teaching of Programming 
 ---
 
 I've been teaching programming and computer science for almost two decades now.
