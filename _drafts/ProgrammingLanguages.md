@@ -34,10 +34,18 @@ some key points that make language syntax easier to write.
 
 * Keep common used elements short: the things you're typing often need to be
   quick to type !
+* Less used elements should have explicit representation, probably a keyword.
 * Avoid complex keywords or complex multi-symbols elements: just think about how
   many typos you can have in a word like `exception` or can you quickly type
   `%:%:` ?
 * Have a strong unambiguous structure: this one is tricky, but if you need to
   struggle with you code structure, you'll loose a lot of time !
 
+As usual, those points really depend on personnal taste. On my side, I prefer
+symbols over keywords and language with explicit structure delimiters.
 
+In order to be a little bit more precise, here are some personnal comments on
+various language (syntax only):
+
+* **pascal**: this is for me the example not to follow on syntax, far too much
+keywords.
