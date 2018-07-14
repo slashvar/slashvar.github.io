@@ -49,7 +49,7 @@ it, you need to store it (in a variable, a field of a structure, an array cell
     ... ) and you can copy it in another storage, it can be valid or
 uninitialised, it can become invalid ...
 
-```C
+```c
 int x = 42;	// we an address to init our pointer
 int *p;		// p is a variable that can contain a pointer to an int
 p = NULL;	// p contains the null address, an existing but unusable pointer
@@ -81,7 +81,7 @@ Let's now do the basic.
 The following piece of code illustrate classic usage of pointers, read it and
 read the comments !
 
-```C
+```c
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -135,3 +135,20 @@ int main()
   return 0;
 }
 ```
+
+You can compile that code and run it:
+
+```
+> make basic.c
+cc basic -o basic.c
+> ./basic
+x = 27
+x = 0
+a = 2
+b = 42
+a = 42
+b = 2
+a/b = 21
+m = 0
+```
+
