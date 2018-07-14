@@ -152,3 +152,39 @@ a/b = 21
 m = 0
 ```
 
+Just to resume what we've seen: `reset(a)` is a function that use a pointer to
+store a value outside of its scope; `swap(a, b)` exchange the content of 2
+addresses and `divide(a, b, m)` computes integer division and store the rest at
+an address provided. This three functions illustrate common (basic) use case of
+pointers: be able to modify variables (or any storage) outside of the current
+function.
+
+Even if it's not the official vocabulary, you can see as a reference call
+semantics, you pass a reference to a local variable in order to modify it.
+
+The traditional call semantics of almost every language is a call by value:
+function's parameters values are copied into the parameter storage. If you want
+to modify variables local to the caller, you must pass the address of those
+variables. The callee always assumes that you pass valid addresses (it can't
+    verify them anyway ... )
+
+## Arrays and pointers arithmetic ##
+
+In most programming languages, an array is a contiguous area containing a
+collection of object of the same type. They are of a fixed size (at some point
+    at least, but you may be able to update their size).
+
+In C, the implementation of arrays are related to pointers, but to the contrary
+of what a lot of people think, arrays and pointers are not exactly the same, but
+I'll show you that later.
+
+If my address are numerical, accessing an element of array is as simple as
+taking the address of the beginning and add the amount of bytes corresponding to
+the number of elements to skip. For example, if I have 4 bytes integers and I
+want to access the third element, I will add shift the address by 16 bytes (skip
+    the first two). Knowing the size of the elements is annoying, the compiler
+know their type and thus their size. This is where pointer arithmetic shows up !
+
+Adding an integer `n` to a pointer, moves the address by `n` objects, provided
+that this pointer points to an array of at least `n` objects (the language
+    guaranteeds the existing of the address of the last object plus one).
