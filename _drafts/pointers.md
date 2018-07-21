@@ -255,7 +255,7 @@ dont_do_that.c:7:10: warning: function returns address of local variable [-Wretu
 
 **Note:** I've used the the flags `-Wall -Wextra`, they activate the *standard*
 warnings (depending on you compiler, you can activated more warning, `clang` for
-    example provides a flag `-Weverythin` that activates all possible warnings).
+    example provides a flag `-Weverything` that activates all possible warnings).
 You should always do that, warnings are always the sign of something wrong,
 sometimes you have a good reason, but it is more likely that the code will
 break at any time later.
@@ -341,7 +341,7 @@ for pedantic C programmers `*(&array[0] + i)`.
 **Fun fact:** we all know that addition is commutative, that is `a + b` is
 equivalent to `b + a`, in most algebra. This is true for pointers as well. It
 turns out that `*(array + i)` is equivalent to `*(i + array)` which means that
-you can (but that's naughty) write `i[array]` !
+you can write (but that's naughty) `i[array]` !
 
 A lot of code are using pointers directly rather than arrays, for a lot of
 reason and this leads also to the concept of iterators in C++. If I rewrote my
@@ -432,8 +432,8 @@ int array[8];
 `array` is not a pointer, in fact what you've just created is a block of 8
 integers. **But** in most cases, if you use the variable `array` it will be
 replaced by the address of the first element, that is `&array[0]`. Thus, you can
-pass it to a function expecting a pointer to an int, you assign a pointer with
-it, but, and this important, it's not a left-value, it can be reassign.
+pass it to a function expecting a pointer to an int, you can assign a pointer with
+it, but, and this is important, it's not a left-value, it can't be reassigned.
 
 Array variables are not replaced by the address of the first element in cases
 where they are used for their types like when passing them to the operator
