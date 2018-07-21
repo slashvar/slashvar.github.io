@@ -195,15 +195,6 @@ We just add a level of stars, this way we can change the address sine we have a
 pointer to a location containing an address. The only differences are on type,
 	the rest of the swap is similar.
 
-```c
-void f(int *x)
-{
-  int y = 0;
-  *x = *x + 1; // change the foreign stored value
-  x = &y;      // has no effect outside of f
-}
-```
-
 ## Common mistakes ##
 
 There's an infinte number of ways to misuse pointers. Let's see some classical
