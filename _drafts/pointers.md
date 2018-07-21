@@ -13,7 +13,7 @@ language.
 This post requires at least some basic knowledge of C, mostly its syntax and the
 most obvious part of its semantics. If you're not a C programmer (but you're
     familiar with languages that use C syntax like Java) don't be afraid you'll
-probably be able to understand most the text and, I hope, you'll learn something
+probably be able to understand most of the text and, I hope, you'll learn something
 useful.
 
 ## A bit of theory ##
