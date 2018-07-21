@@ -771,7 +771,7 @@ void detach(struct list *sentinel, struct list *cell)
 }
 ```
 
-Elegant, isn't it ? In fact, the sentinel play the same role as the our double
+Elegant, isn't it ? In fact, the sentinel play the same role as our double
 pointer in the previous version.
 
 ## Goodbye ##
