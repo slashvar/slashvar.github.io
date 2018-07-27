@@ -72,7 +72,7 @@ send any letter to that address, it is not valid !
 
 Once you got this in mind, you'll be able to understand most errors related to
 pointers. It doesn't mean that you won't make errors or that you'll find them
-easily, but at least you what you're playing with.
+easily, but at least you know what you're playing with.
 
 Let's now do the basic.
 
