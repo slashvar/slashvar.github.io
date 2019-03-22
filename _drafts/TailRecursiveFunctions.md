@@ -104,7 +104,7 @@ int binary_search(int *begin, int *end, int x) {
         return 1; // we found it !
     }
     if (x < *mid) {
-        return binary_search(begin, mid, x); // search in the firt half
+        return binary_search(begin, mid, x); // search in the first half
     } else {
         return binary_search(mid + 1, end, x); // second half
     }
@@ -134,7 +134,7 @@ int binary_search(int *begin, int *end, int x) {
     }
 }
 ```
-Let's refactor the firt `if` a bit:
+Let's refactor the first `if` a bit:
 
 ```c
 int binary_search(int *begin, int *end, int x) {
@@ -176,3 +176,202 @@ int binary_search(int *begin, int *end, int x) {
 }
 ```
 
+## Cool, we longer need to bother, do we ?
+
+Remember the first function ? You can't directly optimize it, you need to first transform
+it into at taill recursive one, and that's not always obvious. The good news is that, it's
+theoretically always possible, the bad news is that it's not always that simple. For
+simple, single call functions, it's a matter of adding some parameters in order to carry
+more information. But even in thoses cases, you need to be sure that you can reorder the
+operations. Let's see a classic trap:
+
+```
+def list_of_int(n):
+    if n == 0:
+        return []
+    r = list_of_int(n-1)
+    r.append(n)
+    return r
+```
+
+We can pass the result list as a parameter and transform that into a tail rec version:
+
+```
+def list_of_int2(n, r):
+    if n == 0:
+        return r
+    r.append(n)
+    return list_of_int2(n-1, r)
+```
+
+Now, we run both:
+
+```
+print(list_of_int(5))
+print(list_of_int2(5, []))
+```
+
+We get:
+
+```
+[1, 2, 3, 4, 5]
+[5, 4, 3, 2, 1]
+```
+
+I let you correct it ...
+
+## More calls, more problems
+
+First, start with an easy one, Fibonacci. For that one, we need to add parameters and
+inverse the order of computation:
+
+```
+def fibo(n):
+    if n < 2:
+        return 1
+    return fibo(n-1) + fibo(n-2)
+
+# Becomes
+
+def _fib(n, i, f_i, f_i1):
+    if i == n:
+        return f_i
+    return _fib(n, i+1, f_i + f_i1, f_i)
+
+def fibo(n):
+    if n < 1: return 1
+    return _fib(n, 1, 1, 1)
+```
+
+Now, say I have a binary tree and I want to compute it's size:
+
+```
+class Tree:
+    def __init(self, key, left=None, right=None):
+        self.key = key
+        self.left = left
+        self.right = right
+
+def size(t):
+    if t == None:
+        return 0
+    return 1 + size(t.left) + size(t.right)
+```
+
+It becomes a bit more tricky no ? Unlike Fibonacci, we can't avoid the call on each node
+of the tree, we need to find a way to do them. For that, we can use a **stack** !
+
+I'll give you directly the loop version, it makes more sense:
+
+```
+def size(t):
+    if t == None:
+        return 0
+    sz = 0
+    stack = [t]
+    while len(stack) > 0:
+        n = stack.pop()
+        sz += 1
+        if n.right:
+            stack.append(n.right)
+        if n.left:
+            stack.append(n.left)
+    return sz
+```
+
+Note the order of the push, to be sure that we traverse the tree in the same order.
+
+OK, but now, what if I want to print my tree in order (the root in the middle):
+
+```
+def in_order(t):
+    if t == None:
+        return
+    in_order(t.left)
+    print(t.key)
+    in_order(t.right)
+```
+
+The trick of stack is not enough, we need to simulate the there and back again, so we
+really need to see each node at least twice !
+
+```
+def in_order(t):
+    if t == None:
+        return
+    stack = [(t, True)]
+    while len(stack) > 0:
+        n, cont = stack.pop()
+        if cont:
+            stack.append((n, False))
+            stack.append((n.left, True)) if n.left
+        else:
+            print(t.key)
+            stack.append((n.right, True)) if n.right
+```
+
+And if you need to do something in-order and post-order (so between the children and after
+        the children), you will need to push each node three times in the stack. Of
+course, with general trees, or graph, this becomes even more complex.
+
+## Does it really matters ?
+
+So, yes, it matters. Of course, with binary trees, maximum size of the stack is linear in
+the depth of the tree which is most of the time not that big even for big trees. But what
+about graph ?
+
+Here is a classic algorithm that finds the cut-points of a connected undirected graph:
+
+```
+def _cut_points(g, v, parent, c, pre, cuts):
+    c[0] += 1
+    pre[v] = c[0]
+    high = c[0]
+    children = 0
+    for succ in g[v]:
+        if pre[succ] == None:
+            children += 1
+            r = _cut_points(g, succ, v, c, pre, cuts)
+            if r >= pre[v]:
+                cuts.add(v)
+            high = min(high, r)
+        elif succ != parent:
+            high = min(high, prev[succ])
+    if parent == None and children > 1:
+        cuts.add(v)
+    return high
+
+def cut_point(g):
+    cuts = set()
+    c = [0]
+    pre = [0] * len(g)
+    _cut_points(g, 0, None, c, pre, cuts)
+    return cuts
+```
+
+OK, it's a DFS (depth first traversal) of an undirected graph, with pre-order counting
+(the array `pre` using `c` to store the counter and simulate a reference). It works with a
+similar idea as Tarjan's algorithm for finding strongly connected components, but
+translated to undirected graphs. You can extend it to compute cut-edges and build
+2-connected components. Open a good algorithms text book if you want to know more about
+it.
+
+What we see here is that we have multiple recursive calls (in a loop) and we perform
+operation in pre-order, after each call and in post-order. So we need to meet each vertex
+a first time, then do something after each of it's successors and then a last time. It's
+easy to see that removing recursion won't be easy ...
+
+Why this example ? Some years ago, for some experiments with huge graphs, I needed the
+cut-points and I implemented the very same algorithm (in C++). On huge graphs, highly
+connected, the recursion depth was pretty high and I ended up with a lot of stackoverflow.
+The only way to get it to work, was to derecursify it. It's doable, it's finally not that
+ugly (a big thanks to C++ iterators) and it saved my experiments !
+
+I let you write your own as an exercise !
+
+## Conclusion
+
+To connect with my introduction, the first thing to remember is, yes, compilers are able
+to optimize tail recursive functions, yes it makes some algorithms more tractable (a bit
+        faster but mostly it avoids stackoverflows) but, no, it's not magical, you need to
+do the hardest part, make your Function tail recursive in the first place !
