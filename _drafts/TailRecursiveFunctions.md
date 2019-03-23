@@ -1,5 +1,5 @@
 ---
-title: Tail Recursive Function
+title: Tail Recursive Functions
 ---
 
 This is a back to basic post motivated by some comments I've recently read on-line about
