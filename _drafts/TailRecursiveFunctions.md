@@ -12,7 +12,7 @@ Let's use a toy useless function as example. Say, you want to compute addition o
 integers, but you're language only know how to compute `+1` and `-1`, and of course, we
 want to do it recursively. Here is a quick implementation in python:
 
-```
+```python
 def add(x, y):
     if y == 0:
         return x
@@ -38,7 +38,7 @@ then return your current result. We're going *there* until we reach the case, an
 
 Now, let's use magical math tricks, and write a similar function:
 
-```
+```python
 def add(x, y):
     if y == 0:
         return x
@@ -185,7 +185,7 @@ simple, single call functions, it's a matter of adding some parameters in order 
 more information. But even in thoses cases, you need to be sure that you can reorder the
 operations. Let's see a classic trap:
 
-```
+```python
 def list_of_int(n):
     if n == 0:
         return []
@@ -196,7 +196,7 @@ def list_of_int(n):
 
 We can pass the result list as a parameter and transform that into a tail rec version:
 
-```
+```python
 def list_of_int2(n, r):
     if n == 0:
         return r
@@ -206,7 +206,7 @@ def list_of_int2(n, r):
 
 Now, we run both:
 
-```
+```python
 print(list_of_int(5))
 print(list_of_int2(5, []))
 ```
@@ -225,7 +225,7 @@ I let you correct it ...
 First, start with an easy one, Fibonacci. For that one, we need to add parameters and
 inverse the order of computation:
 
-```
+```python
 def fibo(n):
     if n < 2:
         return 1
@@ -245,7 +245,7 @@ def fibo(n):
 
 Now, say I have a binary tree and I want to compute it's size:
 
-```
+```python
 class Tree:
     def __init(self, key, left=None, right=None):
         self.key = key
@@ -263,7 +263,7 @@ of the tree, we need to find a way to do them. For that, we can use a **stack** 
 
 I'll give you directly the loop version, it makes more sense:
 
-```
+```python
 def size(t):
     if t == None:
         return 0
@@ -283,7 +283,7 @@ Note the order of the push, to be sure that we traverse the tree in the same ord
 
 OK, but now, what if I want to print my tree in order (the root in the middle):
 
-```
+```python
 def in_order(t):
     if t == None:
         return
@@ -295,7 +295,7 @@ def in_order(t):
 The trick of stack is not enough, we need to simulate the there and back again, so we
 really need to see each node at least twice !
 
-```
+```python
 def in_order(t):
     if t == None:
         return
@@ -322,7 +322,7 @@ about graph ?
 
 Here is a classic algorithm that finds the cut-points of a connected undirected graph:
 
-```
+```python
 def _cut_points(g, v, parent, c, pre, cuts):
     c[0] += 1
     pre[v] = c[0]
