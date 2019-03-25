@@ -72,7 +72,7 @@ every frames of recursion and directly return from the original call.
 
 Of course, it really depends on the way you run your language, but let's assume that we're
 in rather classic context, with a stack used for saving caller context and return address.
-Our context if of course composed of local variables (including parameters), the address
+Our context is of course composed of local variables (including parameters), the address
 of the beginning of the frame for the current function (the top of stack when arrived in
         the function, the frame pointer) and our own return address. Saving context on the
 stack means that we push the frame pointer and the return address and we then we can push
