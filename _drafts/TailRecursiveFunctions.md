@@ -334,11 +334,11 @@ def _cut_points(g, v, parent, c, pre, cuts):
         if pre[succ] == None:
             children += 1
             r = _cut_points(g, succ, v, c, pre, cuts)
-            if r >= pre[v]:
+            if parent != None and r >= pre[v]:
                 cuts.add(v)
             high = min(high, r)
         elif succ != parent:
-            high = min(high, prev[succ])
+            high = min(high, pre[succ])
     if parent == None and children > 1:
         cuts.add(v)
     return high
@@ -346,7 +346,7 @@ def _cut_points(g, v, parent, c, pre, cuts):
 def cut_point(g):
     cuts = set()
     c = [0]
-    pre = [0] * len(g)
+    pre = [None] * len(g)
     _cut_points(g, 0, None, c, pre, cuts)
     return cuts
 ```
@@ -354,9 +354,13 @@ def cut_point(g):
 OK, it's a DFS (depth first traversal) of an undirected graph, with pre-order counting
 (the array `pre` using `c` to store the counter and simulate a reference). It works with a
 similar idea as Tarjan's algorithm for finding strongly connected components, but
-translated to undirected graphs. You can extend it to compute cut-edges and build
-2-connected components. Open a good algorithms text book if you want to know more about
-it.
+translated to undirected graphs.
+
+The graph is represented as adjacency list: it's an array of lists, vertices are numbered
+from `0` to the order of the graph and `g[v]` is the list of successors of `v`.
+
+You can extend it to compute cut-edges and build 2-connected components. Open a good
+algorithms text book if you want to know more about it.
 
 What we see here is that we have multiple recursive calls (in a loop) and we perform
 operation in pre-order, after each call and in post-order. So we need to meet each vertex
@@ -369,7 +373,76 @@ connected, the recursion depth was pretty high and I ended up with a lot of stac
 The only way to get it to work, was to derecursify it. It's doable, it's finally not that
 ugly (a big thanks to C++ iterators) and it saved my experiments !
 
-I let you write your own as an exercise !
+Let's see our python version:
+
+```python
+def cut_points_iter(g, v = 0):
+    cuts = set()
+    high = [None] * len(g)
+    parent_it = [0] * len(g)
+    pre = [None] * len(g)
+    parents = [None] * len(g)
+    root_children = 0
+    c = 1
+    pre[v] = c
+    parents[v] = v
+    high[v] = c
+    stack = [ (v, -1, 0) ]
+    while len(stack) > 0:
+        v, ret, it = stack.pop()
+        if ret != -1:
+            if parents[v] == v:
+                root_children += 1
+            else:
+                if ret >= pre[v]:
+                    cuts.add(v)
+                high[v] = min(high[v], ret)
+            it += 1
+        while it < len(g[v]) and pre[g[v][it]] != None:
+            if g[v][it] != parents[v]:
+                high[v] = min(high[v], pre[g[v][it]])
+            it += 1
+        if it < len(g[v]):
+            if it + 1 < len(g[v]):
+                stack.append( (v, -1, it + 1) )
+            succ = g[v][it]
+            stack.append( (succ, -1, 0) )
+            c += 1
+            pre[succ] = c
+            high[succ] = pre[succ]
+            parents[succ] = v
+            parent_it[succ] = it
+        else:
+            if parents[v] == v:
+                if root_children > 1:
+                    cuts.add(v)
+                return cuts
+            stack.append( (parents[v], high[v], parent_it[v]) )
+    return cuts
+```
+
+Looks a little bit more complex, isn't it ?
+
+How it works ? In the original version, for each vertex, we have several steps:
+* we need to iterate on each successor:
+    * if the successor has not been seen yet, we continue the traversal on it
+    * when returning from a recursive call, we have some checks to do with the result
+    * if the the successor is marked (already seen) we have another check
+* we have a special last step for the root
+* we have a result to return
+
+So, the idea is to schedule as much context as possible, first vertices are
+clearly identified by an id, we can thus store some contextual information in arrays
+(`high`, `parent_it`, `parents`), we can then build the information we want to schedule
+for the next iteration: the idea is to schedule the *parent* and the position in of the
+target vertex in the its parent successors list, thus `v` is the parent and `g[v][it]`
+represents the current vertex. And last element, since we need to handle the return, we
+also had the return value to the context (`ret`).
+
+With that in mind, you should be able to reconnect the different steps of the recursive
+version. Note that the first vertex (the root) has some special treatement that are more
+explicit in the iterative version (which can be misleading). It's not an easy task if you
+don't understand the original algorithm, so spend some time on it first.
 
 ## Conclusion
 
