@@ -21,7 +21,7 @@ def add(x, y):
 
 Forget about negative numbers, or cases where `x == 0`, we can solve them separetly.
 
-If run my function with `3` and `2`, here are the execution steps:
+If we run my function with `3` and `2`, here are the execution steps:
 
 ```
 add(3, 2) -> 1 + add(3, 1)
@@ -33,7 +33,7 @@ add(3, 2) -> 1 + add(3, 1)
 ```
 
 You can see that once you get the result of a recursive call, you can compute the `+1` and
-then return your current result. We're going *there* until we reach the case, and then
+then return your current result. We're going *there* until we reach the stop case, and then
 *back* to compute the result.
 
 Now, let's use magical math tricks, and write a similar function:
@@ -60,8 +60,9 @@ Yes ! Once we reach `y == 0`, we have the final result, the rest of the steps ar
 cascade of returns without any computations. This version is a **tail recursive function**
 !
 
-A tail recursive function, is a function that returns a value without recursive call or
-returns the result of a recursive call directly, nothing happen after the recursive calls.
+  A tail recursive function, is a function that returns a value without recursive
+  call or returns the result of a recursive call directly, and nothing happen
+  after the recursive calls.
 
 ## Optimizing tail recursive functions
 
