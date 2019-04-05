@@ -60,9 +60,9 @@ Yes ! Once we reach `y == 0`, we have the final result, the rest of the steps ar
 cascade of returns without any computations. This version is a **tail recursive function**
 !
 
-    A tail recursive function, is a function that returns a value without recursive
-    call or returns the result of a recursive call directly, and nothing happen
-    after the recursive calls.
+> A tail recursive function, is a function that returns a value without recursive
+> call or returns the result of a recursive call directly, and nothing happen
+> after the recursive calls.
 
 ## Optimizing tail recursive functions
 
