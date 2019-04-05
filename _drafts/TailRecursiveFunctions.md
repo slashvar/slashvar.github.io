@@ -2,9 +2,14 @@
 title: Tail Recursive Functions
 ---
 
-This is a back to basic post motivated by some comments I've recently read on-line about
-recursive functions and the tail recursion optimization. Before explaining this notion of
-optimization, let's see what is a tail recursive function.
+This is a back to basic post motivated by some comments I've recently read
+on-line about recursive functions and the tail recursion optimization. Tail
+recursion is a special case of recursive functions, for which efficient
+optimizations exist, but optimizations are no magic and you need to know when a
+function is tail recursive and how you can write one.
+
+But, before explaining this form of optimization, let's see what is a tail
+recursive function.
 
 ## There and Back Again
 
