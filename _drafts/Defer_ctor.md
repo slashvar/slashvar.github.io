@@ -3,7 +3,7 @@ Let's play with C++
 
 C++ is full of interesting aspects, and when it comes to meta-programming, one can really enjoy the
 trip. I was (re)reading excellent book *Modern C++ Design: Generic Programming and Design Patterns
-Applied* by Andrei Alexandrescu, and triggers a lot of ideas.
+Applied* by Andrei Alexandrescu, and it triggers a lot of ideas.
 
 I'll focus on tiny piece of code I wrote to verify a concept. After reading the chapter on
 singleton, I thought of a missing approach to the issue of KDL (Keyboard, Display, Log). This
@@ -37,7 +37,7 @@ directly.
 
 The starting point of my class look like this:
 
-```
+```C++
 template <typename DeferedType>
 class Defer_constructor
 {
