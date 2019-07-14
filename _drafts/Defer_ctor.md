@@ -1,5 +1,6 @@
-Let's play with C++
-===================
+---
+Title: Let's play with C++
+---
 
 C++ is full of interesting aspects, and when it comes to meta-programming, one can really enjoy the
 trip. I was (re)reading excellent book *Modern C++ Design: Generic Programming and Design Patterns
@@ -94,7 +95,7 @@ accept these parameters at creation time and thus know their types statically.
 So, here is the squeleton updated to support all parameters for our instance, the choice made here
 may not be the best at hand (we will see later why) but it works (only the important additions):
 
-```
+```C++
 template <typename DeferedType, typename... Args>
 class Defer_constructor
 {
@@ -119,7 +120,7 @@ have your subject now !
 Back to my tuple, here is the first version storing data:
 
 
-```
+```C++
 template <typename DeferedType, typename... Args>
 class Defer_constructor
 {
@@ -139,7 +140,7 @@ we could also accept dangling references as a risk. But the code change to store
 rather small, so let's go for it.
 
 
-```
+```C++
 template <typename DeferedType, typename... Args>
 class Defer_constructor
 {
@@ -157,7 +158,7 @@ the instance, just a way of storing parameters.
 
 So how do we construct it ? We need a way to go back to an expression of the form:
 
-```
+```C++
     new DeferedType(std::forward<Args>(a)...)
 ```
 
@@ -174,7 +175,7 @@ Another detail: we are supposed to create the instance as long as it used, and i
 through `operator*` and `operator->`, and the way they work is so similar that it makes sens to
 abstract the code in a private member (let's call it `acces_`). Here is the implementation:
 
-```
+```C++
 template <typename DeferedType, typename... Args>
 class Defer_constructor
 {
@@ -211,7 +212,7 @@ not yet constructed, we create it, otherwise we just return the pointer.
 OK, here is a full listing with the complete class `Defer_constructor`, two toy classes for the demo
 and a main.
 
-```
+```C++
 #include <iostream>
 #include <tuple>
 #include <type_traits>
@@ -351,7 +352,7 @@ code or even better can be *grepped*.
 
 Here is my little solution:
 
-```
+```C++
 template <typename T>
 constexpr void ignore_value(T&&)
 {}
