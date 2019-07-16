@@ -251,7 +251,7 @@ def fibo(n):
 
 Note that while the function computes the same values, it is not a transformation of the first one but a different algorithm, a kind of recursive version of the loop based one.
 
-Now, say I have a binary tree and I want to compute it's size:
+Now, say I have a binary tree and I want to compute its size:
 
 ```python
 class Tree:
