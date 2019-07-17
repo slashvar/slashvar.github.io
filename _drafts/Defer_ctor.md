@@ -10,13 +10,13 @@ The book offers various solutions, such as the Phoenix Singleton (we rebuild the
 
 Of course, this should be generic. What I want is a generic object that can postpone the creation of another object and provide a kind of proxy to it. Let's call this object `Defer_constructor`.
 
-**Disclaimer:** this is all is purely experimental. I didn't explore all the possible implications and risks of such a construction. **Don't use my code in production.**
+**Disclaimer:** this is purely experimental. I didn't explore all the possible implications and risks of such a construction. **Don't use my code in production.**
 
 ## `Defer_constructor` is a kind of smart pointer!
 
 Deferring execution sounds like command/functor, but the important part is the proxy idea. Outside of the object, the fact that we construct the inner object on-demand is hidden (and somehow irrelevant).
 
-We're only building a POC, so I chose a simple model for my smart pointer, no reference counting or thread-safety. I'm sticking to a straightforward concept that only supports move semantics and directly provides object creation.
+We're only building a POC, so I chose a simple model for my smart pointer, no reference counting or thread-safety. I'm sticking to a straightforward concept that only supports move semantics and provides object creation.
 
 The starting point of my class looks like this:
 
@@ -54,7 +54,7 @@ private:
 We're supporting default move semantics (constructible and assignable), we explicitly forbid copy, and we store an instance pointer. Even if we didn't provide implementations yet, we have the
 expected overloading of `*` and `->`.
 
-Note the use of `std::add_pointer_t<DeferedType>`. We could have written `DeferedType*`, but we have a type trait handling this. If necessary, it may solve some obscure corner cases.
+Note the use of `std::add_pointer_t<DeferedType>`. We could have written `DeferedType*`, but we have a type trait handling this. It may solve some obscure corner cases.
 
 ## Constructing the instance
 
@@ -117,7 +117,7 @@ private:
 
 ## When we finally construct the instance
 
-The previous section was misleading: we only store parameters, but we didn't provide a way to construct the instance.
+The previous section title was misleading: we only store parameters, but we didn't provide a way to construct the instance.
 
 How can we do this? We need a way to go back to an expression of the form.
 
@@ -125,14 +125,14 @@ How can we do this? We need a way to go back to an expression of the form.
     new DeferedType(std::forward<Args>(a)...)
 ```
 
-Again, here, `a` is a parameters pack.
+Where `a` is a parameters pack.
 
 Remember when I said I've ended up using a tuple thanks to some templates I found useful? Here we are: we have something called `std::apply` that's made for this. It takes a callable object and tuple,
 and calls the object with elements of the tuple as parameters.
 
 I've decided to wrap the `new` in a lambda, but we can probably pass the `new` operator of the class directly.
 
-Another detail: we want to create the instance as long as it's used. It's used only through `operator*` and `operator->`, and the way they work is so similar that it makes sense to abstract the code in a private member (let's call it `acces_`).
+Another detail: we want to create the instance only it's used. It's used only through `operator*` and `operator->`, and the way they work is so similar that it makes sense to abstract the code in a private member (let's call it `acces_`).
 
 ```C++
 template <typename DeferedType, typename... Args>
@@ -281,25 +281,25 @@ f
 >
 ```
 
-Note that `-Wno-c++98-compat` since `-Weverything` really contains everything.
+Note that we need `-Wno-c++98-compat` since `-Weverything` really contains everything.
 
-Do you remember when I said that the way we get the parameters types as template parameters was not perfect? Here we're forced to write `Defer_constructor<Foo, int, int>` because `Foo` can't be inferred from the call. Therefore, we must type all parameters.
+Do you remember when I said that the way we get the parameters types as template parameters was not perfect? Here we're forced to write `Defer_constructor<Foo, int, int>` because `Foo` can't be inferred from the call. Therefore, we must provide all parameters.
 
-I kept if for future improvement.
+I kept it for future improvement.
 
 ## Conclusion
 
 First, it wasn't that hard. Once we have the key ideas (tuple and `std::apply`), everything else follows smoothly.
 
-Of course, there's room for improvement. I am not at all confident about this code. I didn't the generated code yet, but I guess we can expect much inlining.
+Of course, there's room for improvement. I am not at all confident about this code. I didn't checked the generated assembly code, but I guess we can expect much inlining.
 
 ## Bonus
 
-I have one more little C++ I've put together. It's completely different, but since I am rather slow at pushing new posts, and this *pattern* is small, I wanted to share.
+I have one more little C++ stuff. It's completely different, but since I am rather slow at pushing new posts, and this *pattern* is small, I wanted to share.
 
 You may have noted the arrival of the `[[nodiscard]]` attribute in C++17. This is an advantageous one (in fact, most compilers offered a similar one before) when you have functions returning values that shouldn't be discarded (e.g., a boolean that indicates an error).
 
-Neat, but, as usual, we sometimes need to skip those return values for good. The problem isn't to find a way of discarding it, but do it in a way that's explicit enough so that you can check it when reading the code, or even *grep*.
+Neat, but, as usual, we sometimes need to skip those return values for good. The problem isn't to find a way of discarding it, but to do it in a way that's explicit enough so that you can check it when reading the code, or even *grep* it.
 
 Here is my solution:
 
