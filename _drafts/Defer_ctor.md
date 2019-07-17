@@ -2,41 +2,23 @@
 Title: Let's play with C++
 ---
 
-C++ is full of interesting aspects, and when it comes to meta-programming, one can really enjoy the
-trip. I was (re)reading excellent book *Modern C++ Design: Generic Programming and Design Patterns
-Applied* by Andrei Alexandrescu, and it triggers a lot of ideas.
+C++ is full of exciting aspects. When it comes to meta-programming, one can truly enjoy the trip. I was (re)reading the excellent book *Modern C++ Design: Generic Programming and Design Patterns Applied* by Andrei Alexandrescu, and it triggered many ideas.
 
-I'll focus on tiny piece of code I wrote to verify a concept. After reading the chapter on
-singleton, I thought of a missing approach to the issue of KDL (Keyboard, Display, Log). This
-book exposes a classic issue: we have two singletons handling resources (K and D) and a singleton
-handling logs (`Log`), we want to avoid constructing the Log singleton when we don't use it, but we
-want it to available at any moment and properly destroyed when we leave.
+I'll focus on a tiny piece of code I wrote to verify a concept. After reading the chapter on singletons, I thought of a missing approach to the KDL (Keyboard, Display, Log) issue. This book exposes a classic issue: we have two singletons handling resources (`K` and `D`) and a singleton handling logs (`Log`). We want to avoid constructing the `Log` singleton when we don't use it, but we want it to be available at any moment, and for it to be properly destroyed when we leave.
 
-The book offers various solutions like the Phoenix Singleton (guess what, we rebuild the object when
-        needed) or management of longevity (a pretty good idea for sure). But, what if we can
-construct partially the Log instance very early with only the cheap part of the construction and
-only do the expensive job when needed ? Early construction can be performed by using a value
-instance rather than a pointer and is safe as long as no other singleton of the same kind (value
-        instance) refers to it.
+The book offers various solutions, such as the Phoenix Singleton (we rebuild the object when needed), or longevity management (an excellent idea for sure). However, what if we could partially construct the `Log` instance early on, only handling the cheap part, and keep the expensive job only when needed? We can perform an early construction by using a value instance rather than a pointer, which is safe as long as no other singleton of the same kind (value instance) refers to it.
 
-Of course, this has to be a bit generic and what I want is a generic object that is able to
-postponed the creation of another object a provide a form of proxy to it. Let's call this object
-`Defer_constructor`.
+Of course, this should be generic. What I want is a generic object that can postpone the creation of another object and provide a kind of proxy to it. Let's call this object `Defer_constructor`.
 
-**Disclaimer:**: all this is purely experimental and I didn't explore all the implications and all
-the risks of such a construction. So, don't use my code in production.
+**Disclaimer:** this is all is purely experimental. I didn't explore all the possible implications and risks of such a construction. **Don't use my code in production.**
 
-## `Defer_constructor` is a kind of smart pointer !
+## `Defer_constructor` is a kind of smart pointer!
 
-Deferring execution sounds like command/functor, but the important part is the proxy idea, outside
-of our object the fact that the inner object is constructed on-demand if hidden (and some how
-        irrelevant).
+Deferring execution sounds like command/functor, but the important part is the proxy idea. Outside of the object, the fact that we construct the inner object on-demand is hidden (and somehow irrelevant).
 
-It's only a POC, so I choose a simple model for my smart pointer, no ref-counting and thread safety.
-I will stick to a very simple concept supporting only move-semantic and providing object creation
-directly.
+We're only building a POC, so I chose a simple model for my smart pointer, no reference counting or thread-safety. I'm sticking to a straightforward concept that only supports move semantics and directly provides object creation.
 
-The starting point of my class look like this:
+The starting point of my class looks like this:
 
 ```C++
 template <typename DeferedType>
@@ -67,33 +49,26 @@ public:
 private:
     type instance_ = nullptr;
 };
-
 ```
 
-So, we support default move semantics (constructible and assignable), we explicitely forbid copy and
-we store an instance pointer, and even if we haven't provide their implementation yet, we have the
-expeceted overloading of `*` and `->`.
+We're supporting default move semantics (constructible and assignable), we explicitly forbid copy, and we store an instance pointer. Even if we didn't provide implementations yet, we have the
+expected overloading of `*` and `->`.
 
-Note the use of `std::add_pointer_t<DeferedType>`, we could have simply write `DeferedType*`, but
-there's a type traits doing that, if needed it may solve some obscure corner cases.
+Note the use of `std::add_pointer_t<DeferedType>`. We could have written `DeferedType*`, but we have a type trait handling this. If necessary, it may solve some obscure corner cases.
 
 ## Constructing the instance
 
-We now need to provide a way of constructing the instance, and of course be prepared to support any
-form of constructor. This where I realized how the changes on the last decade are so important. In
-Alexandrescu's book (remember, it's book of 2001) there was no parameters pack and thus no variadic
-templates, no tuples, no lambdas ... But we're in 2019 and we have all of this now.
+We now need to provide a way of constructing the instance and be prepared to support any form of constructors. That's when I realized how significant the changes that happened during the last decade are. In
+Alexandrescu's book (back from 2001), there were no parameters pack, thus no variadic templates, no tuples, no lambdas. We have all this now.
 
-What we need are:
+We need:
 
-* a way of accepting any parameters for the constructor of the instance
-* a way to store them and pass them later to this constructor.
+* a way of accepting any parameters for the instance's constructor,
+* a way to store them and pass them later on.
 
-Hopefully for us we don't need to support multiple way constructing the instance since we will
-accept these parameters at creation time and thus know their types statically.
+Fortunately, we don't need to support multiple ways of constructing the instance, since we accept these parameters at creation time. We, therefore, know their types statically.
 
-So, here is the squeleton updated to support all parameters for our instance, the choice made here
-may not be the best at hand (we will see later why) but it works (only the important additions):
+Here is the updated skeleton to support all parameters for our instance. The choice we're making here may not be optimal (we'll see why later on), but it works:
 
 ```C++
 template <typename DeferedType, typename... Args>
@@ -104,21 +79,14 @@ public:
 };
 ```
 
-So, we want an undefined number of arguments, we just use parameters pack (and `&&` for perfect
-        forwarding). Nothing fancy.
+We want to be able to accept an unknown number of arguments. For this, we can use parameters pack (and `&&` for perfect forwarding). Nothing fancy. Yet, how do we store that? We can't have an attribute holding `Args... args`, do we?
 
-But how do we store that ? we can't have an attribute holding `Args... args`, do we ?
+Another recent C++ addition can save us: tuples! We can store the parameters in a tuple, and later find a way to pass it to the constructor.
 
-Anthore recent addition will rescue us, tuples ! We can store that in a tuple, we will later find a
-way to pass it to the constructor.
+You may be thinking, *"why not use `std::bind` ?"*. That was my first idea, but you can't bind a constructor. While searching for a solution, I ended up finding some template related to tuples and thought it could be
+helpful. However, we could definitely have stored a bind to a function that creates an instance for us. You can give it a try!
 
-I hear someone say "why not use `std::bind` ?", yes, that was my first idea, but you can't bind a
-constructor, and searching for a solution I ended on some template related to tuples that could be
-helpful. But yes, we could have store a bind to a function that creates the instance for us, you
-have your subject now !
-
-Back to my tuple, here is the first version storing data:
-
+Back to the tuple, here is the first version that stores data:
 
 ```C++
 template <typename DeferedType, typename... Args>
@@ -131,14 +99,10 @@ private:
 };
 ```
 
-Looks good ? Yes, we probably miss something. What happen if one of the parameters is a reference ?
-And even worce, what happen if we get a reference to an object with a shorter lifetime ? Bingo, a
-dangling reference !
+Looking good? Yes, we're probably missing something. What happens if one of the parameters is a reference? Even worse, what happens if we get a reference to an object with a shorter lifetime? Bingo, a dangling reference!
 
-Here, just like any other form of closure, we need to store copies of parameters. This is a choice,
-we could also accept dangling references as a risk. But the code change to store copies is
+Here, like with any other form of closure, we need to store copies of parameters. That's a choice; we could also accept dangling references as a risk. However, the necessary code change to store copies is
 rather small, so let's go for it.
-
 
 ```C++
 template <typename DeferedType, typename... Args>
@@ -153,27 +117,22 @@ private:
 
 ## When we finally construct the instance
 
-The title of the previous section was a bit misleading as we did not provide a way of constructing
-the instance, just a way of storing parameters.
+The previous section was misleading: we only store parameters, but we didn't provide a way to construct the instance.
 
-So how do we construct it ? We need a way to go back to an expression of the form:
+How can we do this? We need a way to go back to an expression of the form.
 
 ```C++
     new DeferedType(std::forward<Args>(a)...)
 ```
 
-Where `a` is again a parameters pack.
+Again, here, `a` is a parameters pack.
 
-I've told you that I've ended with tuple due to some templates that I found usefull ? Here we are,
-we have something called `std::apply` made especially for this. It takes a callable object and tuple
-and call the object with elements of the tuple as parameters.
+Remember when I said I've ended up using a tuple thanks to some templates I found useful? Here we are: we have something called `std::apply` that's made for this. It takes a callable object and tuple,
+and calls the object with elements of the tuple as parameters.
 
-I've decided to wrap the `new` in a lambda, but it's probably possible to directly pass the operator
-`new` of the class.
+I've decided to wrap the `new` in a lambda, but we can probably pass the `new` operator of the class directly.
 
-Another detail: we are supposed to create the instance as long as it used, and it's used only
-through `operator*` and `operator->`, and the way they work is so similar that it makes sens to
-abstract the code in a private member (let's call it `acces_`). Here is the implementation:
+Another detail: we want to create the instance as long as it's used. It's used only through `operator*` and `operator->`, and the way they work is so similar that it makes sense to abstract the code in a private member (let's call it `acces_`).
 
 ```C++
 template <typename DeferedType, typename... Args>
@@ -204,13 +163,11 @@ private:
 };
 ```
 
-You will recognize the classic pattern of a singleton with lazy instantiation: if the instance is
-not yet constructed, we create it, otherwise we just return the pointer.
+This is a classic singleton pattern with lazy instantiation: if the instance doesn't yet exist, we create it. Otherwise, we only return the pointer.
 
 ## Putting everything together and testing
 
-OK, here is a full listing with the complete class `Defer_constructor`, two toy classes for the demo
-and a main.
+Here is a full example with the complete `Defer_constructor` class, two toy classes for the demo, and a main.
 
 ```C++
 #include <iostream>
@@ -308,9 +265,9 @@ int main()
 }
 ```
 
-And let's try it, I'm confident so I'll use `clang` with `-fsanitize=address` and `-Weverything` !
+Let's try it now! I'm confident, so I'll use `clang` with `-fsanitize=address` and `-Weverything`!
 
-```
+```sh
 > clang++ -fsanitize=address -Weverything -Wno-c++98-compat -std=c++17 -O3 -o defer defer.cc
 > ./defer
 Before creation of f2
@@ -324,33 +281,27 @@ f
 >
 ```
 
-Note `-Wno-c++98-compat` since `-Weverything` contains really everything.
+Note that `-Wno-c++98-compat` since `-Weverything` really contains everything.
 
-Do you rember, I said that the way we get the parameters types as template parameters was not
-perferct ? Here we're forced to write `Defer_constructor<Foo, int, int>` since `Foo` can not be
-infered from the call and thus we must all parameters. I let this for a further improvement.
+Do you remember when I said that the way we get the parameters types as template parameters was not perfect? Here we're forced to write `Defer_constructor<Foo, int, int>` because `Foo` can't be inferred from the call. Therefore, we must type all parameters.
+
+I kept if for future improvement.
 
 ## Conclusion
 
-First it wasn't that hard, once we had the key ideas (tuple and `std::apply`) the rest follows
-smoothly. There's room for improvement and I am not confident at all about this code.
+First, it wasn't that hard. Once we have the key ideas (tuple and `std::apply`), everything else follows smoothly.
 
-I did not checked the generated code yet, but I guess that we can expect a lot of inlining.
+Of course, there's room for improvement. I am not at all confident about this code. I didn't the generated code yet, but I guess we can expect much inlining.
 
 ## Bonus
 
-I have one more little C++ stuff, it's completely different, but since I am rather slow to push new
-articles and this little *pattern* is small, I wanted to show it you.
+I have one more little C++ I've put together. It's completely different, but since I am rather slow at pushing new posts, and this *pattern* is small, I wanted to share.
 
-You may have noted the arrival of the `[[nodiscard]]` attribute in C++17. This is a very usefull one
-(in fact most compilers offered a similar one before) when you have function returned values that
-must not be discarded (think of a boolean indicating an error for example).
+You may have noted the arrival of the `[[nodiscard]]` attribute in C++17. This is an advantageous one (in fact, most compilers offered a similar one before) when you have functions returning values that shouldn't be discarded (e.g., a boolean that indicates an error).
 
-This is cool, but, as usual, we sometimes need to skip those return values for good. The problem is
-not to find a way of discarding it, but have a very explicit way that can't be checked when reading
-code or even better can be *grepped*.
+Neat, but, as usual, we sometimes need to skip those return values for good. The problem isn't to find a way of discarding it, but do it in a way that's explicit enough so that you can check it when reading the code, or even *grep*.
 
-Here is my little solution:
+Here is my solution:
 
 ```C++
 template <typename T>
@@ -358,9 +309,8 @@ constexpr void ignore_value(T&&)
 {}
 ```
 
-I did not invent it, in OCaml for example, the standard library provide a similar `ignore` function.
-But I found it very handy in this particular context. And since it's explicit and easy to use, you
-will no longer have to decipher `void` cast or empty `if` during code review. Oh, and it work also
-if you need to ignore variables or parameters.
+I did not create it. For instance, in OCaml, the standard library provides a similar `ignore` function. I found it quite handy in this particular context, and since it's explicit and easy to use, you no longer have to decipher `void` casts or empty `if` statement during code reviews.
 
-Another way to do this, is to assign the result to `std::ignore`, but I found it less explicit.
+Oh, and it also works when you need to ignore variables or parameters.
+
+Another way to do this is to assign the result to `std::ignore`, but I find it less explicit.
