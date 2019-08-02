@@ -20,7 +20,7 @@ We're only building a POC, so I chose a simple model for my smart pointer, no re
 
 The starting point of my class looks like this:
 
-```C++
+```c++
 template <typename DeferedType>
 class Defer_constructor
 {
@@ -70,7 +70,7 @@ Fortunately, we don't need to support multiple ways of constructing the instance
 
 Here is the updated skeleton to support all parameters for our instance. The choice we're making here may not be optimal (we'll see why later on), but it works:
 
-```C++
+```c++
 template <typename DeferedType, typename... Args>
 class Defer_constructor
 {
@@ -88,7 +88,7 @@ helpful. However, we could definitely have stored a bind to a function that crea
 
 Back to the tuple, here is the first version that stores data:
 
-```C++
+```c++
 template <typename DeferedType, typename... Args>
 class Defer_constructor
 {
@@ -104,7 +104,7 @@ Looking good? Yes, we're probably missing something. What happens if one of the 
 Here, like with any other form of closure, we need to store copies of parameters. That's a choice; we could also accept dangling references as a risk. However, the necessary code change to store copies is
 rather small, so let's go for it.
 
-```C++
+```c++
 template <typename DeferedType, typename... Args>
 class Defer_constructor
 {
@@ -121,7 +121,7 @@ The previous section title was misleading: we only store parameters, but we didn
 
 How can we do this? We need a way to go back to an expression of the form.
 
-```C++
+```c++
     new DeferedType(std::forward<Args>(a)...)
 ```
 
@@ -134,7 +134,7 @@ I've decided to wrap the `new` in a lambda, but we can probably pass the `new` o
 
 Another detail: we want to create the instance only it's used. It's used only through `operator*` and `operator->`, and the way they work is so similar that it makes sense to abstract the code in a private member (let's call it `acces_`).
 
-```C++
+```c++
 template <typename DeferedType, typename... Args>
 class Defer_constructor
 {
@@ -169,7 +169,7 @@ This is a classic singleton pattern with lazy instantiation: if the instance doe
 
 Here is a full example with the complete `Defer_constructor` class, two toy classes for the demo, and a main.
 
-```C++
+```c++
 #include <iostream>
 #include <tuple>
 #include <type_traits>
@@ -303,7 +303,7 @@ Neat, but, as usual, we sometimes need to skip those return values for good. The
 
 Here is my solution:
 
-```C++
+```c++
 template <typename T>
 constexpr void ignore_value(T&&)
 {}
