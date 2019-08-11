@@ -80,22 +80,7 @@ both version are valid when `T` support `+`, we instruct the compiler to prefer 
 since `int` is a better match for `0` than `double`.
 
 The header `<type_traits>` contains several useful tools to leverage SFINAE more easily like
-`std::enable_if` and various tests on types, let's see another example:
-
-```cpp
-template <typename T, typename U>
-auto compare(const T& x, const U& y)
-    -> typename std::enable_if<std::is_integral<T>::value && std::is_same<U, T>::value, bool>::type
-{
-    return x < y;
-}
-```
-
-It's pretty straigthforward, this comparison function only accept integral types (integers) and the
-same type for both parameters. We can complete it with a specialization to do proper comparison
-(like checking for signedness).
-
-Let's go back to my original topic, now.
+`std::enable_if` and various tests on types.
 
 ## Detecting functions
 
@@ -131,8 +116,124 @@ The name of your wrapper have to be non ambiguous, you can easily end with infin
 otherwise.
 
 Of course, havind a `#if __My_OS__` test looks simpler, but now you only rely on the existance of
-the function, not the possible version you're aware of.
+the function, not the possible versions you're aware of.
 
 This can be very useful, people using OpenSSL may have suffer from their API breaks between various
 versions, you can have a proper wrapper hidding it this way.
 
+## Going further
+
+There's a lot of possibilities when playing around with SFINAE and type traits in general. For
+example, we are using a wrapper template that injects if needed bound checking when passing unsigned
+sizes with proper types to function taking `int` as size (think of OpenSSL broken API).
+
+As an example, let's build a `less` function that compare two integer of different types properly.
+The promotion of integers type can go pretty wrong when comparing a signed integer with an unsigned
+one, just as a matter of example, try the folowing example:
+
+```cpp
+int main()
+{
+    int x = -1;
+    unsigned y = 1;
+    if (x < y) {
+        std::cout << "Good\n";
+    } else {
+        std::cout << "Bad\n";
+    }
+}
+```
+
+Guess what ? It displays `Bad` (and you got a warning at compile time). The reason ? when comparing
+two different types, the compiler is forced to inject conversions, in this case, the rules state it
+must convert the `int` (which has a lower rank than `unsigned`) into `unsigned`. Despite the fact
+that as of today, nothing force the compiler to use two's complement, the conversion rules from
+signed to unsigned generate the same results, and `-1` becomes the maximum value for `unsigned`.
+
+So, what we want is a generic function that returns the comparison safely. The comparison of `x <
+y` depends on signedness of `x` and `y`, assuming that `x` is signed but `y` is not, the comparison
+should be:
+
+```cpp
+    (x < 0) || static_cast<unsigned>(x) < y;
+```
+
+In the opposite case (`y` signed) we can build a similar test.
+
+So, what do we need ?
+
+* A version that return the comparison directly the two parameter have the same signedness and the
+  comparison is defined for their type.
+* A version when the first argument is signed but not the second
+* A version when the second is signed
+
+As a side effect, non numeric types have the same signedness (provided that we test it correctly)
+and thus the first version will be defined as long as we can compare the two types.
+
+Here is the implementation
+
+```cpp
+template <typename T, typename U>
+struct is_same_signedness
+{
+    constexpr static const bool value = std::is_signed<T>::value == std::is_signed<U>::value;
+};
+
+template <typename T, typename U>
+auto my_less(const T& x, const U& y)
+    -> std::enable_if_t<is_same_signedness<T, U>::value, decltype(x < y)>
+{
+    return x < y;
+}
+
+template <typename T, typename U>
+auto my_less(const T& x, const U& y)
+    -> std::enable_if_t<std::is_signed<T>::value && std::is_unsigned<U>::value, bool>
+{
+    using uT       = std::make_unsigned_t<T>;
+    using target_t = typename std::conditional<sizeof(uT) < sizeof(U), U, uT>::type;
+    return x < 0 || static_cast<target_t>(x) < static_cast<target_t>(y);
+}
+
+template <typename T, typename U>
+auto my_less(const T& x, const U& y)
+    -> std::enable_if_t<std::is_unsigned<T>::value && std::is_signed<U>::value, bool>
+{
+    using uU       = std::make_unsigned_t<U>;
+    using target_t = typename std::conditional<sizeof(T) < sizeof(uU), uU, T>::type;
+    return y > 0 && static_cast<target_t>(x) < static_cast<target_t>(y);
+}
+```
+
+We first define a type traits to test for same signedness (we could avoid it, but the code looks
+better that way) and we use it to construct the version that work for types with same signedness and
+defined comparison.
+
+Then we have the two version depending on signedness of parameters. We use SFINAE to select the
+correct version and use other construction provided in `<type_traits>` to properly promote both side
+to the bigger unsigned type.
+
+The test for same signedness is mandatory since (unfortunately) `x < y` is not ill-formed when `x`
+and `y` are numeric types even if they have different signedness, thus we need to ensure that this
+version is not defined in this case.
+
+We could have used `if constexpr` and merge in a single specialization the second and thire one, but
+I find this presentation more explicit. In the first specialization, we could also avoid the
+`decltype` in the return type and use a `static_assert` providing a more explicit error message.
+
+While you may find this definition a bit complex, if you need safe comparison between signed and
+unsigned types, this kind of construction provides a reusable code and helps avoid repeating the
+testing pattern. And since it supports all comparable types, you can use it in templates and all
+form of generic code safely. Bonus, once instantiated, the code is sufficiently simple to be elected
+for iniling and you can expect it to be as efficient as writing the test directly.
+
+## Conclusion
+
+In this post, I've just scratched the surface of what can be done with SFINAE. I think this
+illustrate one of the most interesting aspect of C++ and modern C++: providing smart tools aimed at
+increasing abstraction with almost no impact at run-time, also called zero-cost abstraction.
+
+The growing availability of `constexpr` constructions (evalution at compile time of standard
+expression of the language) and the increasing accessibility of SFINAE open new horizons and the
+hope for a better language without boilerplate code, dangerous usage of preprocessor or the need of
+code generators.
