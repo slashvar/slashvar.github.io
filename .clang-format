@@ -1,0 +1,46 @@
+Language: Cpp
+Standard: Cpp11
+BasedOnStyle: Mozilla
+IndentWidth: 4
+ColumnLimit: 95
+AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: true
+BreakConstructorInitializers: AfterColon
+AlignAfterOpenBracket: Align
+AlignTrailingComments: true
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBinaryOperators: NonAssignment
+PointerAlignment: Left
+AccessModifierOffset: -4
+AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
+
+# only empty functions can be single-line
+AllowShortFunctionsOnASingleLine: Empty
+
+# When splitting a line, make it obvious that it's not another indented statement
+ContinuationIndentWidth: 4
+
+SortIncludes: true
+
+
+# Always split if/else and code
+AllowShortIfStatementsOnASingleLine: false
+
+# Never put short loops on single line
+AllowShortLoopsOnASingleLine: false
+
+AllowShortBlocksOnASingleLine: false
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeRangeBasedForLoopColon: true
+
+# Allow short lambdas on single line
+# Don't work on current clang version
+# AllowShortLambdasOnASingleLine: true
+
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+AlwaysBreakTemplateDeclarations: Yes
