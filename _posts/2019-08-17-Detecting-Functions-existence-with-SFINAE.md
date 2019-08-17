@@ -18,7 +18,7 @@ SFINAE stands for **Substitution Failure Is Not An Error**. Does it helps ?
 
 In short, the compiler will not produce errors in some substitution cases and just ignore the faulty code. It can be surprising that such a behavior makes any sense in the first place, but it's in fact a very powerful feature. If you think of it, sometimes you instantiate a template but not all operations provided by it make sense with the provided parameters. As long as you don't use them, you're fine. This silent failure is very convenient in a lot of cases. The basic usage of this is to forbid generic operations on type for which it doesn't make sense. Let's take a simple example:
 
-```C++
+```c++
 template <typename T>
 auto sum(T&& x, T&& y) -> decltype(x + y)
 {
@@ -30,7 +30,7 @@ In this example, the return type of the function is the type of `x + y`, if `T` 
 
 But we can also use it to provide specialized version based on similar property.
 
-```C++
+```c++
 namespace details {
 template <typename T>
 auto print_sum_implem(const T& x, const T& y, int) -> decltype(x + y)
@@ -66,7 +66,7 @@ OK, so what I want now is to be able write a wrapper for `quick_exit(3)` using `
 
 We will be using the same `int` vs `float` tricks to prioritize the version using `quick_exit`, add the required attributes (`[[noreturn]]`) and lock detail implementation in its own namespace.
 
-```C++
+```c++
 namespace details {
 template <typename T>
 [[noreturn]] auto quick_exit_impl(T status, int) -> decltype(quick_exit(status))
@@ -99,7 +99,7 @@ There's a lot of possibilities when playing around with SFINAE and type traits i
 
 As an example, let's build a `less` function that compare two integer of different types properly.  The promotion of integers type can go pretty wrong when comparing a signed integer with an unsigned one, just as a matter of example, try the following example:
 
-```C++
+```c++
 int main()
 {
     int x = -1;
@@ -116,7 +116,7 @@ Guess what ? It displays `Bad` (and you got a warning at compile time). The reas
 
 So, what we want is a generic function that returns the comparison safely. The comparison of `x < y` depends on signedness of `x` and `y`, assuming that `x` is signed but `y` is not, the comparison should be:
 
-```C++
+```c++
     (x < 0) || static_cast<unsigned>(x) < y;
 ```
 
@@ -132,7 +132,7 @@ As a side effect, non numeric types have the same signedness (provided that we t
 
 Here is the implementation
 
-```C++
+```c++
 template <typename T, typename U>
 struct is_same_signedness
 {
