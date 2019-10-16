@@ -6,7 +6,7 @@ For a year and half, I'm now working for Algolia, a SaaS start-up. Even if it's 
 
 But as a software engineer this is a challenge, I'm working on the core components of our service, a search engine and the corresponding indexing service. Such software are pretty large, requires performances, stability, safety ... But we're also a small team, less than ten engineers, and we were even less when I started.
 
-This post is about how we manage (or try to) this challenge, and what ideas both from our processes to the code itself, we are trying to leverage. I don't promise groundbreaking techniques or totally new methods of software engineering, just my personnal reflexion on the subject.
+This post is about how we manage (or try to) this challenge, and what ideas both from our processes to the code itself, we are trying to leverage. I don't promise groundbreaking techniques or totally new methods of software engineering, just my personnal reflexion on the subject. Also, I won't try to relate the way we work with any exiting methods, for one good reason: I don't care about established methods.
 
 I wrote this article as a journey toward some technical idea (in C++ as usual), but I'll start talking about organisation and software delivery.
 
@@ -37,3 +37,7 @@ The benefits of such an approach are many:
 * Avoid over-design: you don't know how far you need to go until you tried your feature at scale.
 * Evaluate and drive future iterations: what points lack efficiency ? what are the real usage profiles ? Once again, nothing replace evaluation at scale.
 * Avoid tunnel effect: don't spend endless months without visible results.
+
+Of course, there're drawbacks. First, as any design process, it relies on our ability to establish a realistic scope. On the design side, there's also some risk related to the accuracy of the first iteration. There are some many ways to miss the point. But those risk are not surprising nor different than what we usually face in other design and developpement processes.
+
+From my technical perspective, the most interesting issue is related to software quality.
