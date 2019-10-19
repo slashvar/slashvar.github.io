@@ -40,4 +40,14 @@ The benefits of such an approach are many:
 
 Of course, there're drawbacks. First, as any design process, it relies on our ability to establish a realistic scope. On the design side, there's also some risk related to the accuracy of the first iteration. There are some many ways to miss the point. But those risk are not surprising nor different than what we usually face in other design and developpement processes.
 
-From my technical perspective, the most interesting issue is related to software quality.
+From my technical perspective, the evil lies, as usual, in the details. And this time, details are code quality and maintanibility.
+
+## Good code, bad code ...
+
+Code quality is vaste subject, with very different opinions by a lot of different people. I'm pretty sure that almost any developper has its own definition of code quality. Here is mine, I've built a pragmatic approach, narrowing the concept to what I think is important:
+
+* Good code works: in particular it does the expected job.
+* Good code contains no obvious bugs: perfection is not easy, but at least easily spotted bugs have been removed.
+* Good code can evolve, easily.
+* Good code is frugal with resources: even if you don't write for performances, you don't need to waste cycles and bytes.
+* Good code looks simple: no over complicated patterns,
