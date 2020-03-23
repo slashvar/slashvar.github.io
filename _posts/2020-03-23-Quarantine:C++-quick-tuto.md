@@ -1,5 +1,5 @@
 ---
-title: Quick C++ Tutorial
+title: Quarantine Quick C++ Tutorial
 ---
 
 Being stuck at home, we all have some extra time to work on various subjects we never found time for. I've decided to write small C++ tutorials, I can't guarantee to write a new one everyday, but I'll try. The purpose is to quickly explore a subject in less than 30min.
@@ -29,7 +29,7 @@ The code is really simple, of course, the C++ version will be longer, but not th
 
 First, we need to prepare our program and include the needed components of the standard library.
 
-```C++
+```c++
 // Algorithms (for sort)
 #include <algorithm>
 // Stream input and output
@@ -58,7 +58,7 @@ This command should produce a program called `my_sort`. We build with the most c
 
 C++ has several tools to do I/Os, but the easiest to use are the streams library. Since we are just reading lines, the best tool at hand is `std::getline`. As a first demonstration, we will read and reouput the line from the standard input:
 
-```C++
+```c++
 int main()
 {
     for (std::string line; std::getline(std::cin, line);) {
@@ -88,7 +88,7 @@ line 2
 
 Since we need to sort the lines, we need to sort store them. We need the simpliest form of container, a vector.
 
-```C++
+```c++
 int main()
 {
     // A vector of strings
@@ -128,7 +128,7 @@ But you can't write `std::sort(lines)`, it doesn't work that way. Algorithms tak
 
 Now we can see or full `my_sort` command:
 
-```C++
+```c++
 // Algorithms (for sort)
 #include <algorithm>
 // Stream input and output
