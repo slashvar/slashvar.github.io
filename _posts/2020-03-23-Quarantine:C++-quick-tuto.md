@@ -122,7 +122,7 @@ But you can't write `std::sort(lines)`, it doesn't work that way. Algorithms tak
     std::sort(lines.begin(), lines.end());
 ```
 
-`std::sort` can be used to sort only a part of a container or can't take a comparison function, read the doc if you want to know more about it.
+`std::sort` can be used to sort only a part of a container or can take a comparison function, read the doc if you want to know more about it.
 
 ## Putting everything together
 
