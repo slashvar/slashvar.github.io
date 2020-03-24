@@ -1,5 +1,5 @@
 ---
-title: Quarantine Post 02: Quick SFINAE
+title: Quarantine Post 02 - Quick SFINAE
 ---
 
 Today, I'm jumping into more a advanced topic: Substitution Failure Is Not An Error (SFINAE). So, we're gonna talk about templates, type traits and a bit of static programming.
