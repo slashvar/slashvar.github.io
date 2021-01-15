@@ -2,21 +2,12 @@
  * basic_cat.cc : a quick example on calling syscall
  */
 
-// could be convenient
-#include <string_view>
-
-// we will use std::cout to write to the standard output
-#include <iostream>
-
-// the libC header for open
-#include <fcntl.h>
-
-// the libC header for read
-#include <unistd.h>
-
-// for error handling
 #include <err.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <iostream>
+#include <string_view>
+#include <unistd.h>
 
 /*
  * my_cat(fd) reads chars from fd and write them to the standard output
@@ -25,14 +16,13 @@
  */
 void my_cat(int fd)
 {
-    // Buffer size
-    const size_t buf_size = 1024;
     // Buffer for read with
-    char buff[buf_size];
+    constexpr size_t buff_size = 1024;
+    char buff[buff_size];
 
     // read return value
     int ret_val;
-    while ((ret_val = read(fd, buff, buf_size)) != 0) {
+    while ((ret_val = read(fd, buff, buff_size)) != 0) {
         if (ret_val < 0) {
             // EINTR is not an error, we should just retry
             if (errno == EINTR) {
@@ -43,7 +33,7 @@ void my_cat(int fd)
         }
         std::cout << std::string_view(buff, ret_val);
     }
-    std::cout << std::endl; // flush and skip a line
+    std::cout.flush(); // flush output
 }
 
 /*

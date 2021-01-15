@@ -143,7 +143,7 @@ In a terminal, the _end of file_ is reached when the user press `^D`.
 
 ### An example using `write(2)`
 
-`write(2)` is very similar to read in it usage, I let you read the code sample:
+`write(2)` is very similar to read in its usage, I let you read the code sample:
 
 ```c++
 #include <cerrno>
@@ -205,4 +205,129 @@ process or the process itself.
 
 Since file descriptors are not limited to files, you can obtain one from several syscalls, but the simplest way to
 get a file descriptor is to open a file, using `open(2)`.
+
+The following example, start with the first demo function but rather that accumulating read content in a string we
+will print it out directly, I won't use `write(2)` for that to keep the focus of the example, we will just use the
+C++ streams and some `std::string_view`. The only _new_ part of the following example is the use of `open(2)` to
+open our file (let's discuss it after the code).
+
+```c++
+/*
+ * basic_cat.cc : a quick example on calling syscall
+ */
+
+#include <err.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <iostream>
+#include <string_view>
+#include <unistd.h>
+
+/*
+ * my_cat(fd) reads chars from fd and write them to the standard output
+ *
+ * Exit the program with appropriate error message if read(2) fails
+ */
+void my_cat(int fd)
+{
+    // Buffer for read with
+    constexpr size_t buff_size = 1024;
+    char buff[buff_size];
+
+    // read return value
+    int ret_val;
+    while ((ret_val = read(fd, buff, buff_size)) != 0) {
+        if (ret_val < 0) {
+            // EINTR is not an error, we should just retry
+            if (errno == EINTR) {
+                continue;
+            }
+            // Otherwise we die with err
+            err(1, "error while reading");
+        }
+        std::cout << std::string_view(buff, ret_val);
+    }
+    std::cout.flush(); // flush output
+}
+
+/*
+ * Take the file name as first parameter, opens it and calls my_cat
+ */
+int main(int argc, char* argv[])
+{
+    if (argc < 2) {
+        // requires a parameter
+        errx(1, "usage: %s <file>", argv[0]);
+    }
+    if (int fd = open(argv[1], O_RDONLY); fd >= 0) {
+        my_cat(fd);
+        // close the file
+        close(fd);
+    } else {
+        // Something went wrong
+        err(1, "can't open %s", argv[1]);
+    }
+}
+```
+So, take a look at the `open(2)` call. We gave it a string (more precisely a null-terminated array of `char`) and
+what looks like a flag. It will try to open the corresponding file, returning a file descriptor. As for other,
+negative values indicate errors. `open(2)` exists with a three parameters version, but the third parameter is only
+usefull if you may create opened file.
+
+The second parameter uses a classical _trick_ to combine flags. Each possible flags as a unique single bit set and
+thus by combining the value using a bit by bit or (`|`) you well get an integer combining the various flag, you can
+then check if a flag is set by masking this integer with the flag using an and (`&`). In our case, we want to open
+the file in read-only mode, so we only need the flag `O_RDONLY`.
+
+If you want to open a file for writing, creating it if it doesn't exist and truncate it otherwise, you will call
+`open(2)` like this:
+
+```c++
+    fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+```
+
+The last parameter will be used for the file permissions, masked by the `umask` of owner of the process. This mode
+is usually expressed in octal (hence the leading `0`) where each digit will control the permissions for the owner,
+the group and other users. Usually, the `umask` value is properly set and allowing read and write for everyone
+(`0666` mode) is OK as it will be reduced by the mask to read/write for the owner and read only for other users
+(including the group). Unless you need more specific permissions, you follow this convention. Read the manual pages
+of `umask(2)` and `chmod(2)` for more information.
+
+Some additional flags are available (see `open(2)`), one important flag is `O_CLOEXEC`. We will discuss the topic
+later (when dealing with process management), what you need to know is that if your process may execute (replace
+itself with) another program, by default, opened files will remain open for the executed program. The flag
+`O_CLOEXEC` indicates that you the opened file to be closed when calling one of the `exec` functions.
+
+### File content manipulation abstractions
+
+File descriptors, `read(2)`, `write(2)` and other operations are the underlying mechanisms to manipulate files.
+While you should be able to do anything you want with them, they are not very convenient in most cases.
+
+Language libraries usually provide some portable abstractions. In C++ we have the operations from the C library
+(from `stdio`) and the streams. Exploring them is out-of-scope, but here are the main benefits:
+
+* **Portability:** higher level operations, while they rely on underlying system operations, are usually
+cross-plateform
+* **Buffering:** most higher level operations rely on buffered I/Os to minimize the amount of context switches with
+the system.
+* **Formatting:** this is usually the most visible extensions
+
+### Paths, directories and file manipulations
+
+For this part, I will choose to use the abstraction from C++17 (`std::filesystem`). While, for content, the core of
+the operations, abstractions or not, are about reading and writing bytes, for file manipulations, the underlying
+API is a bit more complex. And on top of that, manipulating path means manipulating strings. C++ offers nice
+abstractions (using `std::string` or ``std::filesystem::path`) to avoid the cumbersom part of string manipulations.
+
+The core and most important addition brings by `std::filesystem` is `std::filesystem::path`. An abstraction over
+path that provides easy manipulations and some classical operations (path validation, file status, creations and
+destructions ... )
+
+For the rest of this part, I will follow cppreference practice and consider that we use the following namespace
+shortcut:
+
+```c++
+namespace fs = std::filesystem;
+```
+
 
