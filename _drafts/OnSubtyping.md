@@ -18,7 +18,7 @@ Polymorphism is the generic term to describe the idea that one can use the same 
 
 `ignore` is a function that ignores its input, we can write it in pseudo C:
 
-```C
+```c
 void ignore(T x)
 {
     return;
@@ -29,7 +29,7 @@ This is a good candidate for polymorphism, you don't want to write the same func
 
 `identity` is a function that return its input unchanged. We also expect that we can reuse that value with its original type (without a type cast for example). The pseudo code look like this:
 
-```C
+```c
 T identity(T x)
 {
     return x;
@@ -40,7 +40,7 @@ This is an abstraction of the concept of container: we put _something_ in the co
 
 In OO context, subytping is thus not used for _pure_ genericity (like when designing containers) but to model the idea that instances of the different classes may share a common interface, like in this naive example (C++):
 
-```C++
+```c++
 size_t size_of(const SizeableType& obj)
 {
     return obj.size();
@@ -49,7 +49,7 @@ size_t size_of(const SizeableType& obj)
 
 Where `SizeableType` defines an interface like this:
 
-```C++
+```c++
 class SizeableType
 {
 public:
@@ -103,7 +103,7 @@ I will not go into the details of how those tables work, as it depends on the la
 
 In fact, calling the good function in case of subtyping is not the main issue. Let's look at a naive example:
 
-```C++
+```c++
 
 class Point
 {
@@ -128,7 +128,7 @@ private:
 
 The virtual methods here a not really interesting (eventually the destructor), what is more interesting is the layout of the data and the size of the resulting object. You don't need to know much about C++ internal to understand that objects of class `Point` do no have the same size as objects of class `ColoredPoint`. So, I wrote a function like this:
 
-```C++
+```c++
 int getX(Point p) { return p.getX(); }
 ```
 
@@ -140,7 +140,7 @@ How do we solve that problem? We use pointers (or references) !
 
 So the function becomes:
 
-```C++
+```c++
 int getX(const Point& p) { return p.getX(); }
 // or
 int getX(const Point* p) { return p->getX(); }
@@ -158,7 +158,7 @@ I will take a classical OO design example to illustrate the consequences on the 
 
 So, let's say we want to compose a class with an internal member based on an interface. I will use the infamous car and engine example for that. I keep the code to the bare minimum:
 
-```C++
+```c++
 class EngineInterface { /* some pure virtual methods */ };
 class Car
 {
@@ -179,7 +179,7 @@ At first, the first question is specific to your design. So, how do we handle th
 
 As a modern C++ programmer, I want to rewrite the definition like this:
 
-```C++
+```c++
     std::unique_ptr<EngineInterface> engine;
 ```
 
@@ -242,3 +242,179 @@ size_t size_of(const SizeableType& obj)
 ```
 
 With a bit of work on type traits, or with C++20 concepts we can provide better type checking than _template instantiation errors_ and thus better error message.
+
+### Composition patterns
+
+The previous exemple with the car and the engine is a classic composition pattern (it's not the name of an official design pattern). It solves a classical design issue: how to build objects with some inner elements (usually impacting it's behavior) selected at run-time.
+
+Examples relying on _real life objects_ are often misleading. In that case, we may see the various engine as instances of different _models_ of engine, but in practice properties could give us the control on behavior that we expect.
+
+So, a better example would be to consider the **Composite** pattern. Let's define a tiny example of Abstract Syntax Tree (AST):
+
+```c++
+namespace ast {
+// The common interface
+struct Node
+{
+    virtual ~Node() = default;
+};
+
+// binary operators
+struct Operator : public Node
+{
+    Node*       lhs;
+    Node*       rhs;
+    std::string operator;
+};
+
+// values
+struct Integer : public Node
+{
+    int value;
+};
+};
+```
+
+Here the need for pointers comes as much from the subtyping relations than the fact that `Operator` nodes can be composed from operators or integers. Of course, as we are in a too simple case, we could have define all in one node type, but you get the idea.
+
+The next step is probably to apply the _Visitor_ pattern to implement evaluation or pretty printing. Here is an example of pretty printing (full code):
+
+```c++
+#include <iostream>
+namespace ast {
+
+struct Operator;
+struct Integer;
+
+struct VisitorInterface
+{
+    virtual void visit(Operator*) = 0;
+    virtual void visit(Integer*)  = 0;
+};
+
+// The common interface
+struct Node
+{
+    virtual ~Node()                        = default;
+    virtual void accept(VisitorInterface*) = 0;
+};
+
+struct Operator : public Node
+{
+    Node*       lhs;
+    Node*       rhs;
+    std::string op;
+
+    void accept(VisitorInterface* visitor) override
+    {
+        // let the visitor take responsibility of traversal
+        visitor->visit(this);
+    }
+};
+
+struct Integer : public Node
+{
+    int value;
+
+    void accept(VisitorInterface* visitor) override
+    {
+        visitor->visit(this);
+    }
+};
+
+struct Printer : public VisitorInterface
+{
+    void visit(Integer* i) override
+    {
+        std::cout << i->value;
+    }
+    void visit(Operator* op) override
+    {
+        std::cout << "(";
+        op->lhs->accept(this);
+        std::cout << op->op;
+        op->rhs->accept(this);
+        std::cout << ")";
+    }
+};
+};
+```
+
+There are several issues with that code. In particular, I'm using raw pointers why I should have used `std::unique_ptr` (or some other kind of smart pointers) in order to ease the memory management.
+
+We don't need an interface for the visitor. It is only required to provide a generic version of `::accept()` in all kind of nodes. But it's a case of polymorphic function and we can implement it using a template as we should always know the concrete type of the visitor used. You can even go a bit further, as we choose to leave the traversal responsibility to the visitor, the `accept` override of all sub-nodes are all the same, we should be able to implement it using the Curiously Recurring Template Pattern in `Node` directly (this can be a bit tricky as we still need a unique type representing all kind of nodes in the operator).
+
+And if you really want to get rid of subtyping, you can use `std::variant` (left as an exercise for the reader).
+
+```c++
+#include <iostream>
+#include <memory>
+#include <variant>
+namespace ast {
+
+struct Operator;
+struct Integer;
+
+using Node = std::variant<Operator, Integer>;
+
+struct Operator
+{
+    std::unique_ptr<Node> lhs;
+    std::unique_ptr<Node> rhs;
+    std::string           op;
+
+    Operator(std::unique_ptr<Node> lhs_, std::unique_ptr<Node> rhs_, std::string op_) :
+      lhs(std::move(lhs_)), rhs(std::move(rhs_)), op(std::move(op_))
+    {}
+};
+
+struct Integer
+{
+    Integer(int v) : value(v) {}
+    int value;
+};
+
+struct Printer
+{
+    void operator()(Integer& i)
+    {
+        std::cout << i.value;
+    }
+    void operator()(Operator& op)
+    {
+        std::cout << "(";
+        std::visit(*this, *op.lhs);
+        std::cout << op.op;
+        std::visit(*this, *op.rhs);
+        std::cout << ")";
+    }
+};
+
+// Build example
+Node example()
+{
+    return Operator { std::make_unique<Node>(std::in_place_type_t<Operator>(),
+                                             std::make_unique<Node>(3),
+                                             std::make_unique<Node>(4),
+                                             "+"),
+                      std::make_unique<Node>(6),
+                      "*" };
+}
+};
+```
+
+It is interesting to note that the code is simpler without subtyping. Of course, part of the job is hidden inside `std::variant` and `std::visit`, but first they belong to the standard, and second what they provide in that example is not so complex and can be easily implemented (not that variant are so simple, but we don't need all the aspects nor the genericity).
+
+But the most important aspect is that we remove a lot of boilerplate code (all the `::accept` implementations). Now, adding a new kind of node only requires to descripe the node content (and of course the visitor code). We also gain some flexibility, while we still need pointers for the recursive structure, the root of our AST can be a value and still be seen as generic `Node`.
+
+## And, so?
+
+As I said in the introduction, I wanted to lay down some reflexions on the topic.
+
+The most important point that I wanted to show is that using the OO polymorphim (subtyping) adds constraints on you code and you should integrate those aspect in you design. My personal opinion is that you should always question the necessity of relying on those constructions. Maybe the flexibility is not needed at run-time and you can get the same genericity by using templates, you should also consider if you can rely on a single entity with the proper parameters.
+
+I have chosen to not talk about performances, while it's a real topic, I see it as a fragile argument and probably the least problem here.
+
+One final question is the relation between inheritance and subtyping. In almost all OO languages, inheritance is strongly linked with subtyping. This is a legacy mistake. If you dig a bit into the type theory, you will find that doing so may break important properties of type system. This is a known problem. I remember my typing teacher telling us that it was a choice as it seems more convenient and the cases are tricky. But, since then, people have pointed out that even from a design perspective this is a mistake.
+
+Some languages don't force you into this paradigm. In OCaml for example, subtyping is not linked to inheritance. In C++, as long as you don't use `virtual`, you can use inheritance without subtyping as it is done in policy based design, mixins or CRTP.
