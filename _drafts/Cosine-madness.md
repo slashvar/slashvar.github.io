@@ -205,7 +205,7 @@ func CosineBlock(u, v []float32) (float64, error) {
 }
 ```
 
-Just to be sure this was not due to some Go specificities, I translated both implementations in C++:
+Just to be sure this was not due to some Go specificities, I translated implementations in C++:
 
 ```c++
 double cosine_simple_loop(auto&& u, auto&& v)
@@ -270,7 +270,59 @@ double cosine_grouped_dnc(auto&& u, auto&& v)
     }
     return dp / magnitude;
 }
+
+std::tuple<double, double, double> dot_prod_block32(auto&& u, auto&& v)
+{
+    size_t end = std::min(32zu, u.size());
+    double dp { 0 };
+    double norm2_u { 0 };
+    double norm2_v { 0 };
+    for (size_t i = 0; i < end; ++i) {
+        dp += u[i] * v[i];
+        norm2_u += u[i] * u[i];
+        norm2_v += v[i] * v[i];
+    }
+    return { dp, norm2_u, norm2_v };
+}
+
+std::tuple<double, double, double> dot_prod_block(auto&& u, auto&& v)
+{
+    double dp { 0 };
+    double norm2_u { 0 };
+    double norm2_v { 0 };
+    for (size_t offset = 0; offset < u.size(); offset += 32) {
+        size_t end         = std::min(offset + 32, u.size());
+        auto&& [d, nu, nv] = dot_prod_block32(std::span { begin(u) + offset, end },
+                                              std::span { begin(v) + offset, end });
+        dp += d;
+        norm2_u += nu;
+        norm2_v += nv;
+    }
+    return { dp, norm2_u, norm2_v };
+}
+
+double cosine_block(auto&& u, auto&& v)
+{
+    if (u.size() != v.size()) {
+        throw std::invalid_argument("not the same size");
+    }
+    auto&& [dp, norm2_u, norm2_v] = dot_prod_block(u, v);
+    if (dp < 0) {
+        return 0;
+    }
+    double magnitude = std::sqrt(norm2_u * norm2_v);
+    if (magnitude == 0) {
+        return 0;
+    }
+    return dp / magnitude;
+}
 ```
+
+Some notes on the C++ implementations:
+* `float` to `double` conversion is not explicit, but it still happens;
+* The divide and conquer version is faster with interators than with spans by about 80ns per call;
+* The _block_ version works is faster with spans than with iterators;
+* C++ is a little bit faster, but I can tell if it does not come from the testing framework.
 
 Timing are similar to the ones for the Go version:
 
@@ -280,4 +332,4 @@ Timing are similar to the ones for the Go version:
 | Grouped DnC		| 345 ns/op		| 323 ns/op		|
 | By blocks			| 319 ns/op 	| 296 ns/op		|
 
-_Note: all benchmarks are run on my M1 laptop._
+_Note: all benchmarks are run on my M1 laptop. Running on intel hardware, results are similar._

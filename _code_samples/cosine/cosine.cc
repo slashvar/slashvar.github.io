@@ -304,9 +304,10 @@ double cosine_split(auto&& u, auto&& v)
     return dp / magnitude;
 }
 
-std::tuple<double, double, double> dot_prod_block32(auto&& u, auto&& v)
+template <size_t SZ>
+std::tuple<double, double, double> dot_prod_blockSZ(auto&& u, auto&& v)
 {
-    size_t end = std::min(32zu, u.size());
+    size_t end = std::min(SZ, u.size());
     double dp { 0 };
     double norm2_u { 0 };
     double norm2_v { 0 };
@@ -318,15 +319,16 @@ std::tuple<double, double, double> dot_prod_block32(auto&& u, auto&& v)
     return { dp, norm2_u, norm2_v };
 }
 
+template <size_t SZ>
 std::tuple<double, double, double> dot_prod_block(auto&& u, auto&& v)
 {
     double dp { 0 };
     double norm2_u { 0 };
     double norm2_v { 0 };
-    for (size_t offset = 0; offset < u.size(); offset += 32) {
-        size_t end         = std::min(offset + 32, u.size());
-        auto&& [d, nu, nv] = dot_prod_block32(std::span { begin(u) + offset, end },
-                                              std::span { begin(v) + offset, end });
+    for (size_t offset = 0; offset < u.size(); offset += SZ) {
+        size_t end         = std::min(offset + SZ, u.size());
+        auto&& [d, nu, nv] = dot_prod_blockSZ<SZ>(std::span { begin(u) + offset, end },
+                                                  std::span { begin(v) + offset, end });
         dp += d;
         norm2_u += nu;
         norm2_v += nv;
@@ -334,12 +336,13 @@ std::tuple<double, double, double> dot_prod_block(auto&& u, auto&& v)
     return { dp, norm2_u, norm2_v };
 }
 
+template <size_t SZ>
 double cosine_block(auto&& u, auto&& v)
 {
     if (u.size() != v.size()) {
         throw std::invalid_argument("not the same size");
     }
-    auto&& [dp, norm2_u, norm2_v] = dot_prod_block(u, v);
+    auto&& [dp, norm2_u, norm2_v] = dot_prod_block<SZ>(u, v);
     if (dp < 0) {
         return 0;
     }
@@ -410,14 +413,14 @@ void test_cosine_split(auto&& v1, auto&& v2)
     std::cout << "per call: " << (timer / ITER).count() << "ns\n";
 }
 
-template <size_t ITER>
+template <size_t ITER, size_t SZ>
 void test_cosine_block(auto&& v1, auto&& v2)
 {
     std::chrono::nanoseconds timer;
     {
         time_guard clock { timer };
         for (size_t i = 0; i != ITER; ++i) {
-            result = cosine_block(v1, v2);
+            result = cosine_block<SZ>(v1, v2);
         }
     }
     std::cout << "total: " << timer.count() << "ns\n";
@@ -443,7 +446,7 @@ int main()
     test_cosine_simple_loop<10>(a, c);
     test_cosine_one_loop<10>(a, c);
     test_cosine_split<10>(a, c);
-    test_cosine_block<10>(a, c);
+    test_cosine_block<10, 32>(a, c);
 
     std::cout << "\nsimple loop:\n";
     test_cosine_simple_loop<max_iter>(a, c);
@@ -452,5 +455,11 @@ int main()
     std::cout << "\nsplt:\n";
     test_cosine_split<max_iter>(a, c);
     std::cout << "\nblock:\n";
-    test_cosine_block<max_iter>(a, c);
+    test_cosine_block<max_iter, 32>(a, c);
+    std::cout << "\nblock<8>:\n";
+    test_cosine_block<max_iter, 8>(a, c);
+    std::cout << "\nblock<16>:\n";
+    test_cosine_block<max_iter, 16>(a, c);
+    std::cout << "\nblock<64>:\n";
+    test_cosine_block<max_iter, 64>(a, c);
 }
