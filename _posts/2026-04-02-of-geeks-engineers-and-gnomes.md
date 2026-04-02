@@ -2,6 +2,8 @@
 title: "Of Geeks, Engineers, and Gnomes"
 ---
 
+![A gnome writing code](/assets/images/gnome-coding.png)
+
 I've been away from this blog for a while (nothing new) but I'm back and now we got some tiny gnomes to help us write text or even code.
 
 In fact, those gnomes are the main characters for this new post as we're going to talk about vibe coding (yes, _yet another vibe coding blog post_). Along the way, we'll look at the dual personality of programmers, the long history of programs writing programs, why natural languages are a poor fit for describing code, and where all of this might be heading.
